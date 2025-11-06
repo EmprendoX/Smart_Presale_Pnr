@@ -1,0 +1,65 @@
+import { Project, Round, Reservation, Transaction, ResearchItem, PricePoint, SecondaryListing, Trade, ProjectDocument } from '../types';
+
+// Interfaz común para todos los servicios de base de datos
+export interface DatabaseService {
+  // Proyectos
+  getProjects(): Promise<Project[]>;
+  getProjectById(id: string): Promise<Project | null>;
+  getProjectBySlug(slug: string): Promise<Project | null>;
+  createProject(project: Project): Promise<Project>;
+  updateProject(id: string, updates: Partial<Project>): Promise<Project | null>;
+
+  // Rondas
+  getRounds(): Promise<Round[]>;
+  getRoundById(id: string): Promise<Round | null>;
+  getRoundByProjectId(projectId: string): Promise<Round | null>;
+  createRound(round: Round): Promise<Round>;
+  updateRound(id: string, updates: Partial<Round>): Promise<Round | null>;
+
+  // Reservas
+  getReservations(): Promise<Reservation[]>;
+  getReservationById(id: string): Promise<Reservation | null>;
+  getReservationsByRoundId(roundId: string): Promise<Reservation[]>;
+  getReservationsByUserId(userId: string): Promise<Reservation[]>;
+  createReservation(reservation: Reservation): Promise<Reservation>;
+  updateReservation(id: string, updates: Partial<Reservation>): Promise<Reservation | null>;
+
+  // Transacciones
+  getTransactions(): Promise<Transaction[]>;
+  getTransactionById(id: string): Promise<Transaction | null>;
+  getTransactionByReservationId(reservationId: string): Promise<Transaction | null>;
+  createTransaction(transaction: Transaction): Promise<Transaction>;
+  updateTransaction(id: string, updates: Partial<Transaction>): Promise<Transaction | null>;
+
+  // Research
+  getResearch(): Promise<ResearchItem[]>;
+  getResearchByProjectId(projectId: string): Promise<ResearchItem[]>;
+  createResearchItem(item: ResearchItem): Promise<ResearchItem>;
+
+  // Price History
+  getPriceHistory(): Promise<Record<string, PricePoint[]>>;
+  getPriceHistoryByProjectId(projectId: string): Promise<PricePoint[]>;
+  addPricePoint(projectId: string, point: PricePoint): Promise<void>;
+
+  // Secondary Listings
+  getListings(): Promise<SecondaryListing[]>;
+  getListingsByProjectId(projectId: string): Promise<SecondaryListing[]>;
+  getListingById(id: string): Promise<SecondaryListing | null>;
+  createListing(listing: SecondaryListing): Promise<SecondaryListing>;
+  updateListing(id: string, updates: Partial<SecondaryListing>): Promise<SecondaryListing | null>;
+
+  // Trades
+  getTrades(): Promise<Trade[]>;
+  createTrade(trade: Trade): Promise<Trade>;
+
+  // Documents
+  getDocuments(): Promise<ProjectDocument[]>;
+  getDocumentById(id: string): Promise<ProjectDocument | null>;
+  getDocumentsByProjectId(projectId: string): Promise<ProjectDocument[]>;
+  getDocumentsByDeveloperId(developerId: string): Promise<ProjectDocument[]>;
+  createDocument(document: ProjectDocument): Promise<ProjectDocument>;
+  updateDocument(id: string, updates: Partial<ProjectDocument>): Promise<ProjectDocument | null>;
+  deleteDocument(id: string): Promise<boolean>;
+}
+
+

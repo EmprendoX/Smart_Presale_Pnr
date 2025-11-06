@@ -1,0 +1,180 @@
+import { DatabaseService } from './db';
+import { Project, Round, Reservation, Transaction, ResearchItem, PricePoint, SecondaryListing, Trade, ProjectDocument } from '../types';
+import { jsonDb } from '../storage/json-db';
+
+export class JsonDbService implements DatabaseService {
+  // Proyectos
+  async getProjects(): Promise<Project[]> {
+    return jsonDb.getProjects();
+  }
+
+  async getProjectById(id: string): Promise<Project | null> {
+    return jsonDb.getProjectById(id);
+  }
+
+  async getProjectBySlug(slug: string): Promise<Project | null> {
+    return jsonDb.getProjectBySlug(slug);
+  }
+
+  async createProject(project: Project): Promise<Project> {
+    return jsonDb.createProject(project);
+  }
+
+  async updateProject(id: string, updates: Partial<Project>): Promise<Project | null> {
+    return jsonDb.updateProject(id, updates);
+  }
+
+  // Rondas
+  async getRounds(): Promise<Round[]> {
+    return jsonDb.getRounds();
+  }
+
+  async getRoundById(id: string): Promise<Round | null> {
+    return jsonDb.getRoundById(id);
+  }
+
+  async getRoundByProjectId(projectId: string): Promise<Round | null> {
+    return jsonDb.getRoundByProjectId(projectId);
+  }
+
+  async createRound(round: Round): Promise<Round> {
+    return jsonDb.createRound(round);
+  }
+
+  async updateRound(id: string, updates: Partial<Round>): Promise<Round | null> {
+    return jsonDb.updateRound(id, updates);
+  }
+
+  // Reservas
+  async getReservations(): Promise<Reservation[]> {
+    return jsonDb.getReservations();
+  }
+
+  async getReservationById(id: string): Promise<Reservation | null> {
+    return jsonDb.getReservationById(id);
+  }
+
+  async getReservationsByRoundId(roundId: string): Promise<Reservation[]> {
+    return jsonDb.getReservationsByRoundId(roundId);
+  }
+
+  async getReservationsByUserId(userId: string): Promise<Reservation[]> {
+    return jsonDb.getReservationsByUserId(userId);
+  }
+
+  async createReservation(reservation: Reservation): Promise<Reservation> {
+    return jsonDb.createReservation(reservation);
+  }
+
+  async updateReservation(id: string, updates: Partial<Reservation>): Promise<Reservation | null> {
+    return jsonDb.updateReservation(id, updates);
+  }
+
+  // Transacciones
+  async getTransactions(): Promise<Transaction[]> {
+    return jsonDb.getTransactions();
+  }
+
+  async getTransactionById(id: string): Promise<Transaction | null> {
+    return jsonDb.getTransactionById(id);
+  }
+
+  async getTransactionByReservationId(reservationId: string): Promise<Transaction | null> {
+    return jsonDb.getTransactionByReservationId(reservationId);
+  }
+
+  async createTransaction(transaction: Transaction): Promise<Transaction> {
+    return jsonDb.createTransaction(transaction);
+  }
+
+  async updateTransaction(id: string, updates: Partial<Transaction>): Promise<Transaction | null> {
+    return jsonDb.updateTransaction(id, updates);
+  }
+
+  // Research
+  async getResearch(): Promise<ResearchItem[]> {
+    return jsonDb.getResearch();
+  }
+
+  async getResearchByProjectId(projectId: string): Promise<ResearchItem[]> {
+    return jsonDb.getResearchByProjectId(projectId);
+  }
+
+  async createResearchItem(item: ResearchItem): Promise<ResearchItem> {
+    return jsonDb.createResearchItem(item);
+  }
+
+  // Price History
+  async getPriceHistory(): Promise<Record<string, PricePoint[]>> {
+    return jsonDb.getPriceHistory();
+  }
+
+  async getPriceHistoryByProjectId(projectId: string): Promise<PricePoint[]> {
+    return jsonDb.getPriceHistoryByProjectId(projectId);
+  }
+
+  async addPricePoint(projectId: string, point: PricePoint): Promise<void> {
+    return jsonDb.addPricePoint(projectId, point);
+  }
+
+  // Secondary Listings
+  async getListings(): Promise<SecondaryListing[]> {
+    return jsonDb.getListings();
+  }
+
+  async getListingsByProjectId(projectId: string): Promise<SecondaryListing[]> {
+    return jsonDb.getListingsByProjectId(projectId);
+  }
+
+  async getListingById(id: string): Promise<SecondaryListing | null> {
+    return jsonDb.getListingById(id);
+  }
+
+  async createListing(listing: SecondaryListing): Promise<SecondaryListing> {
+    return jsonDb.createListing(listing);
+  }
+
+  async updateListing(id: string, updates: Partial<SecondaryListing>): Promise<SecondaryListing | null> {
+    return jsonDb.updateListing(id, updates);
+  }
+
+  // Trades
+  async getTrades(): Promise<Trade[]> {
+    return jsonDb.getTrades();
+  }
+
+  async createTrade(trade: Trade): Promise<Trade> {
+    return jsonDb.createTrade(trade);
+  }
+
+  // Documents
+  async getDocuments(): Promise<ProjectDocument[]> {
+    return jsonDb.getDocuments();
+  }
+
+  async getDocumentById(id: string): Promise<ProjectDocument | null> {
+    return jsonDb.getDocumentById(id);
+  }
+
+  async getDocumentsByProjectId(projectId: string): Promise<ProjectDocument[]> {
+    return jsonDb.getDocumentsByProjectId(projectId);
+  }
+
+  async getDocumentsByDeveloperId(developerId: string): Promise<ProjectDocument[]> {
+    return jsonDb.getDocumentsByDeveloperId(developerId);
+  }
+
+  async createDocument(document: ProjectDocument): Promise<ProjectDocument> {
+    return jsonDb.createDocument(document);
+  }
+
+  async updateDocument(id: string, updates: Partial<ProjectDocument>): Promise<ProjectDocument | null> {
+    return jsonDb.updateDocument(id, updates);
+  }
+
+  async deleteDocument(id: string): Promise<boolean> {
+    return jsonDb.deleteDocument(id);
+  }
+}
+
+

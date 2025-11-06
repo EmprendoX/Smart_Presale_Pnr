@@ -1,0 +1,412 @@
+{
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "update": "Update",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "confirm": "Confirm",
+    "yes": "Yes",
+    "no": "No",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "none": "None",
+    "view": "View",
+    "actions": "Actions",
+    "status": "Status",
+    "date": "Date",
+    "amount": "Amount",
+    "total": "Total",
+    "available": "Available",
+    "unavailable": "Unavailable",
+    "days": "days"
+  },
+  "nav": {
+    "projects": "Projects",
+    "myReservations": "My Reservations",
+    "devPanel": "Dev Panel",
+    "admin": "Admin",
+    "howItWorks": "How it works",
+    "language": "Language",
+    "spanish": "Español",
+    "english": "English"
+  },
+  "home": {
+    "title": "Verified Projects",
+    "published": "Published",
+    "progress": "Progress",
+    "deposit": "Deposit",
+    "viewDetail": "View detail →",
+    "noProjects": "No projects available"
+  },
+  "project": {
+    "propertyInfo": "Property Information",
+    "propertyType": "Property Type",
+    "propertyCost": "Property Cost",
+    "developmentStage": "Development Stage",
+    "bedrooms": "Bedrooms",
+    "bathrooms": "Full Bathrooms",
+    "halfBathrooms": "Half Bathrooms",
+    "surfaceArea": "Surface Area",
+    "parkingSpaces": "Parking Spaces",
+    "floors": "Floors/Levels",
+    "promotionalVideo": "Promotional Video",
+    "zoneAndEnvironment": "Zone and Environment",
+    "golf": "Golf",
+    "schools": "Schools",
+    "transport": "Transport",
+    "retail": "Retail",
+    "tabs": {
+      "overview": "Overview",
+      "documents": "Documents",
+      "research": "Studies & Data",
+      "market": "Market (Price)",
+      "secondary": "Secondary (Resale)",
+      "timeline": "Timeline"
+    },
+    "documents": {
+      "title": "Project Documents",
+      "description": "Documents available for transparency and security",
+      "noDocuments": "No documents available"
+    },
+    "research": {
+      "title": "Studies, reports, news and data",
+      "noItems": "No items yet"
+    },
+    "market": {
+      "title": "Price per slot (historical)",
+      "last": "Last",
+      "first": "First",
+      "variation": "Variation",
+      "note": "*Curve updates with secondary market trades (mock)."
+    },
+    "secondary": {
+      "noRound": "This project does not have an active round.",
+      "sellSlots": "Sell your slots (internal market)",
+      "confirmedSlots": "Confirmed slots",
+      "slotsToSell": "Slots to sell",
+      "askPrice": "Ask price",
+      "publish": "Publish",
+      "activeOffers": "Active offers",
+      "noActiveListings": "No active listings.",
+      "buy": "Buy",
+      "invalidData": "Invalid data",
+      "listingPublished": "Listing published",
+      "purchaseCompleted": "Purchase completed (simulated)"
+    },
+    "timeline": {
+      "title": "Milestones",
+      "presaleStart": "Presale start",
+      "currentDeadline": "Current deadline",
+      "addToCalendar": "Add to calendar (.ics)",
+      "estimatedDelivery": "Estimated delivery"
+    },
+    "actions": {
+      "title": "Actions",
+      "group": "Group",
+      "depositPerSlot": "Deposit per slot",
+      "viewMyReservations": "View my reservations →"
+    },
+    "kpis": {
+      "totalUnits": "Total units",
+      "available": "Available",
+      "presaleGroup": "Presale group",
+      "depositPerSlot": "Deposit / slot",
+      "deadline": "Deadline"
+    },
+    "status": {
+      "open": "Open",
+      "nearly_full": "Nearly Full",
+      "closed": "Closed",
+      "not_met": "Not Met",
+      "fulfilled": "Fulfilled"
+    },
+    "progress": "Presale progress"
+  },
+  "reserve": {
+    "title": "Reserve slots",
+    "button": "Reserve",
+    "slots": "Slots",
+    "maxPerPerson": "Max. {max} per person",
+    "country": "Country",
+    "fullName": "Full name",
+    "phone": "Phone",
+    "idNumber": "ID number",
+    "idPlaceholder": "Passport/ID",
+    "kycRequired": "KYC required for deposits ≥ 1,000.",
+    "submit": "Confirm reservation",
+    "processing": "Processing..."
+  },
+  "dashboard": {
+    "title": "My Reservations",
+    "filters": {
+      "all": "All",
+      "pending": "Pending",
+      "confirmed": "Confirmed",
+      "assigned": "Assigned",
+      "waitlisted": "Waitlisted",
+      "refunded": "Refunded"
+    },
+    "stats": {
+      "totalReservations": "Total reservations",
+      "confirmed": "Confirmed",
+      "totalAmount": "Total amount"
+    },
+    "noReservations": "You don't have reservations yet.",
+    "noReservationsFiltered": "No reservations with status \"{status}\".",
+    "reservation": "Reservation",
+    "reservedSlots": "Reserved slots",
+    "totalAmount": "Total amount",
+    "date": "Date",
+    "roundGoal": "Round goal",
+    "requestRefund": "Request refund",
+    "waitingPayment": "Waiting for payment confirmation",
+    "refundConfirm": "Are you sure you want to request a refund for this reservation?",
+    "refundRequested": "Refund requested / applied."
+  },
+  "dev": {
+    "title": "Developer Panel",
+    "newProject": "+ New project",
+    "myProjects": "My projects",
+    "noProjects": "You haven't created any projects yet.",
+    "createFirstProject": "Create first project",
+    "createProject": "Create project",
+    "editProject": "Edit project",
+    "backToList": "← Back to list",
+    "projectInfo": "Project information",
+    "financialInfo": "Financial Information (optional)",
+    "propertyDetails": "Property Details (optional)",
+    "roundInfo": "Presale round",
+    "projectDocuments": "Project documents",
+    "projectDocumentsDescription": "Upload PDF documents with a descriptive title",
+    "loadingDocuments": "Loading documents...",
+    "deleteDocumentConfirm": "Are you sure you want to delete this document?",
+    "documentDeleted": "Document deleted",
+    "documentDeleteError": "Error deleting document",
+    "fields": {
+      "name": "Project name *",
+      "city": "City *",
+      "country": "Country *",
+      "currency": "Currency *",
+      "description": "Description *",
+      "descriptionPlaceholder": "Describe the project...",
+      "images": "Images (URLs or upload files)",
+      "videoUrl": "Video URL (optional)",
+      "videoUrlPlaceholder": "https://youtube.com/watch?v=...",
+      "videoUrlHelp": "Promotional video URL (YouTube, Vimeo, etc.)",
+      "totalUnits": "Total units",
+      "totalUnitsPlaceholder": "E.g.: 120",
+      "totalUnitsHelp": "Total number of development units",
+      "propertyType": "Property type",
+      "propertyTypeSelect": "Select...",
+      "propertyTypeOther": "Specify property type",
+      "propertyPrice": "Property cost ({currency})",
+      "propertyPricePlaceholder": "E.g.: 250000",
+      "propertyPriceHelp": "Price per unit/property",
+      "developmentStage": "Development stage",
+      "developmentStageSelect": "Select...",
+      "developmentStageOther": "Specify stage",
+      "bedrooms": "Bedrooms",
+      "bedroomsPlaceholder": "E.g.: 3",
+      "bathrooms": "Full bathrooms",
+      "bathroomsPlaceholder": "E.g.: 2",
+      "halfBathrooms": "Half bathrooms",
+      "halfBathroomsPlaceholder": "E.g.: 1",
+      "surfaceArea": "Surface area (m²)",
+      "surfaceAreaPlaceholder": "E.g.: 120.5",
+      "parkingSpaces": "Parking spaces",
+      "parkingSpacesPlaceholder": "E.g.: 2",
+      "floors": "Floors/Levels",
+      "floorsPlaceholder": "E.g.: 2",
+      "goalType": "Goal type",
+      "goalValue": "Goal value *",
+      "depositAmount": "Deposit per slot *",
+      "slotsPerPerson": "Slots per person *",
+      "deadlineDays": "Days until deadline *",
+      "rule": "Rule",
+      "groupSlots": "Presale group (optional)",
+      "groupSlotsPlaceholder": "E.g.: 30",
+      "groupSlotsHelp": "Presale group size (slots)"
+    },
+    "propertyTypes": {
+      "apartments": "Apartments",
+      "houses": "Houses",
+      "lots": "Lots",
+      "villa": "Villa",
+      "townhouses": "Townhouses",
+      "condos": "Condominiums",
+      "other": "Other"
+    },
+    "stages": {
+      "presale": "Presale",
+      "preConstruction": "Pre-construction",
+      "construction": "Construction",
+      "delivery": "Delivery",
+      "postDelivery": "Post-delivery",
+      "other": "Other"
+    },
+    "goalTypes": {
+      "reservations": "Reservations",
+      "amount": "Amount"
+    },
+    "rules": {
+      "allOrNothing": "All or nothing",
+      "partial": "Partial"
+    },
+    "status": {
+      "draft": "Draft",
+      "review": "Under review",
+      "published": "Published"
+    },
+    "validation": {
+      "nameRequired": "Name is required",
+      "cityRequired": "City is required",
+      "countryRequired": "Country is required",
+      "descriptionRequired": "Description is required",
+      "imagesRequired": "Add at least one image",
+      "goalValueRequired": "Goal value must be greater than 0",
+      "depositRequired": "Deposit must be greater than 0",
+      "slotsPerPersonRequired": "Slots per person must be greater than 0",
+      "deadlineDaysRequired": "Days must be greater than 0",
+      "totalUnitsInvalid": "Total units must be a positive number",
+      "groupSlotsInvalid": "Presale group must be a positive number",
+      "validationError": "Please complete all required fields"
+    },
+    "messages": {
+      "projectUpdated": "Project updated successfully",
+      "projectCreated": "Project and round created successfully. Send to review/publication from Admin.",
+      "projectSaveError": "Could not save project",
+      "loadError": "Error loading projects",
+      "saving": "Saving...",
+      "updateProject": "Update project",
+      "createProjectAndRound": "Create project and round"
+    },
+    "round": {
+      "round": "Round",
+      "deposit": "Deposit",
+      "noRound": "No associated round",
+      "view": "View →"
+    }
+  },
+  "admin": {
+    "title": "Administration Panel",
+    "filters": {
+      "all": "All statuses",
+      "draft": "Drafts",
+      "review": "Under review",
+      "published": "Published"
+    },
+    "stats": {
+      "totalProjects": "Total projects",
+      "draft": "Drafts",
+      "review": "Under review",
+      "published": "Published"
+    },
+    "noProjects": "No projects.",
+    "noProjectsFiltered": "No projects with status \"{status}\".",
+    "created": "Created",
+    "publish": "Publish",
+    "publishing": "Publishing...",
+    "unpublish": "Unpublish",
+    "updating": "Updating...",
+    "backToDraft": "Back to draft",
+    "closeRound": "Evaluate round closure",
+    "closeRoundConfirm": "Evaluate and close this round? This may generate automatic refunds if the goal was not met.",
+    "roundClosed": "Round closed. Status: {status}",
+    "publishConfirm": "Publish this project?",
+    "roundGoal": "Round goal",
+    "depositPerSlot": "Deposit per slot",
+    "deadline": "Deadline",
+    "roundStatus": "Round status",
+    "presaleGroup": "Presale group",
+    "slots": "slots",
+    "downloadIcs": "Download .ics",
+    "viewProject": "View project →",
+    "noRound": "This project does not have an associated round. The developer must create a round.",
+    "reservations": "reservations",
+    "messages": {
+      "projectPublished": "Project published successfully",
+      "projectUpdated": "Project updated to \"{status}\"",
+      "updateError": "Could not update project. Try again.",
+      "loadError": "Error loading projects"
+    }
+  },
+  "forms": {
+    "required": "This field is required",
+    "invalidEmail": "Invalid email",
+    "invalidNumber": "Invalid number",
+    "minValue": "Minimum value is {min}",
+    "maxValue": "Maximum value is {max}",
+    "selectOption": "Select..."
+  },
+  "messages": {
+    "error": "Error",
+    "success": "Success",
+    "loading": "Loading...",
+    "saveSuccess": "Saved successfully",
+    "saveError": "Error saving",
+    "deleteSuccess": "Deleted successfully",
+    "deleteError": "Error deleting",
+    "updateSuccess": "Updated successfully",
+    "updateError": "Error updating"
+  },
+  "status": {
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "refunded": "Refunded",
+    "assigned": "Assigned",
+    "waitlisted": "Waitlisted",
+    "draft": "Draft",
+    "review": "Under review",
+    "published": "Published"
+  },
+  "documents": {
+    "upload": "Upload document",
+    "title": "Document title *",
+    "titlePlaceholder": "E.g.: Cancún Market Study 2024",
+    "selectFile": "Select PDF file",
+    "fileSelected": "File selected",
+    "uploadButton": "Upload",
+    "uploading": "Uploading...",
+    "noFile": "Please select a PDF file",
+    "fileTooLarge": "File is too large. Maximum 10MB",
+    "completeFields": "Please complete the title and select a PDF file",
+    "uploadError": "Error uploading document",
+    "download": "Download",
+    "noDocuments": "No documents available"
+  },
+  "images": {
+    "addUrl": "Add URL",
+    "uploadFile": "Upload image",
+    "selectFile": "Select file",
+    "uploading": "Uploading...",
+    "invalidFile": "Please select a valid image file",
+    "fileTooLarge": "File is too large. Maximum 5MB",
+    "uploadError": "Error uploading image"
+  },
+  "features": {
+    "amenities": "Amenities",
+    "specifications": "Specifications"
+  },
+  "error": {
+    "title": "Something went wrong",
+    "message": "An unexpected error occurred. Please try again.",
+    "reload": "Reload page",
+    "backHome": "Back to home"
+  },
+  "notFound": {
+    "title": "Page not found",
+    "message": "Sorry, the page you are looking for does not exist.",
+    "backHome": "Back to home"
+  }
+}
+

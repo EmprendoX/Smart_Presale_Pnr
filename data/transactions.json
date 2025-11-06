@@ -1,0 +1,26 @@
+[
+  {
+    "id": "tx_p3hy4pve",
+    "reservationId": "1fd5695e-30fe-4fee-9661-eab0574359f7",
+    "provider": "simulated",
+    "amount": 25000,
+    "currency": "MXN",
+    "status": "succeeded"
+  },
+  {
+    "id": "tx_kzymv9yp",
+    "reservationId": "331650c5-0f56-4927-ae4f-34ade3ada428",
+    "provider": "simulated",
+    "amount": 500,
+    "currency": "USD",
+    "status": "succeeded"
+  },
+  {
+    "id": "tx_1r1je86m",
+    "reservationId": "0c4a404e-d31b-4cae-9c06-3cef11250214",
+    "provider": "simulated",
+    "amount": 500,
+    "currency": "USD",
+    "status": "succeeded"
+  }
+]

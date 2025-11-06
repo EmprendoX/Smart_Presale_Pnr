@@ -1,0 +1,104 @@
+[
+  {
+    "id": "p1",
+    "slug": "residencial-arrecife",
+    "name": "Residencial Arrecife",
+    "city": "Cancún",
+    "country": "MX",
+    "currency": "USD",
+    "status": "published",
+    "images": [
+      "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?q=80&w=1600&auto=format&fit=crop"
+    ],
+    "description": "Torre residencial frente al mar. Entrega estimada 2027.",
+    "developerId": "d1",
+    "createdAt": "2025-11-04T18:39:33.966Z"
+  },
+  {
+    "id": "p2",
+    "slug": "loft-27",
+    "name": "LOFT 27",
+    "city": "CDMX",
+    "country": "MX",
+    "currency": "MXN",
+    "status": "published",
+    "images": [
+      "https://images.unsplash.com/photo-1560448075-bb4caa6c9319?q=80&w=1600&auto=format&fit=crop"
+    ],
+    "description": "Lofts urbanos en corredor financiero. Entrega 2026.",
+    "developerId": "d1",
+    "createdAt": "2025-11-04T18:39:33.966Z"
+  },
+  {
+    "id": "75958088-7162-43f7-b50f-223111b36717",
+    "slug": "playa-romana",
+    "name": "Playa Romana",
+    "city": "CDMX",
+    "country": "MX",
+    "currency": "USD",
+    "status": "published",
+    "images": [
+      "/uploads/1762460105011-x4hl0tid62.png",
+      "/uploads/1762460114569-9detfxvrli6.png",
+      "/uploads/1762460119468-jnvgp6nnkb9.png"
+    ],
+    "videoUrl": "https://youtu.be/ImsOkl7kfwc?si=JsOhv56yNkp7FVkN",
+    "description": "Playa Nueva Romana by Bahia Principe Residences es el residencial Inmobiliario de Grupo Piñero, grupo turístico español consolidado y confiable con más de 40 años de experiencia.\n\nPlaya Nueva Romana, es uno de los residenciales inmobiliarios de mayor plusvalía y confort en República Dominicana.\n\nSu ubicación privilegiada de Santo Domingo, seguridad las 24 horas, ser el único residencial con Campo de Golf afiliado a la PGA of America en República Dominicana, disponer de amenidades y servicios completamente desarrollados, lo convierten en el mejor complejo residencial para invertir y construir su patrimonio.",
+    "developerId": "d1",
+    "createdAt": "2025-11-06T20:20:18.980Z",
+    "ticker": "SPS:PLAYA",
+    "totalUnits": 20,
+    "zone": {
+      "golf": [
+        "2"
+      ],
+      "schools": [
+        "2"
+      ],
+      "retail": [
+        "12"
+      ]
+    }
+  },
+  {
+    "id": "798c031f-13b0-4a81-8af2-abdca051f3fc",
+    "slug": "land-playa-nueva-romana",
+    "name": "Land Playa Nueva Romana",
+    "city": "Dominican Republic",
+    "country": "RD",
+    "currency": "USD",
+    "status": "published",
+    "images": [
+      "/uploads/1762461173250-e3dp004wek.png",
+      "/uploads/1762461177942-yqtw4qylint.png",
+      "/uploads/1762461189068-y6p5v9jnruq.png"
+    ],
+    "videoUrl": "https://youtu.be/ImsOkl7kfwc?si=xKa5AWO9XtZbKwe8",
+    "description": "Eden Garden\n\nEden Garden Residencial –Exclusivos apartamentos\n\nEden Garden es un exclusivo conjunto residencial de apartamentos de 1, 2 y 3 habitaciones, ubicado en una de las zonas más privilegiadas del Residencial Central Park, justo frente al parque Barrancolí.\n\nLas unidades de 2 y 3 habitaciones han sido diseñadas como penthouse de 2 y 3 niveles, con terrazas privadas que ofrecen vistas inigualables y una conexión genuina con el entorno natural.",
+    "developerId": "d1",
+    "createdAt": "2025-11-06T20:35:57.708Z",
+    "ticker": "SPS:LAND-",
+    "totalUnits": 17,
+    "zone": {
+      "summary": "Conoce la comunidad Bahia Principe\nUna infinidad de amenidades para cualquier gusto y estilo de vida\n\nAmantes del deporte\nEl lugar favorito para disfrutar solo o en compañía\n\n \nPGA Golf Academy\n \nPGA Golf Course\n \nActividades acuáticas\n \nSport Center\nPara disfrutar del ocio\nConoce toda la infraestructura de Bahia Principe\n\n \nRestaurante & Delivery\n \nZona comercial\n \nCasa club\n \nSeguridad\nPara que los niños disfruten\nEl lugar ideal para que los pequeños se diviertan juntos.\n\n \nÁrea de juegos\n \nPiscina infantil\nRecuperar energía\nRelájese y alivie el estrés, mientras consiente sus sentidos.\n\n \nBeach Club\n \nSpa y masajes\n \nÁrea de Yoga\nDisfrutar de la naturaleza\nConservando las áreas naturales\n\n \nExcursiones\n \nPlaya",
+      "golf": [
+        "2"
+      ],
+      "schools": [],
+      "retail": [
+        "12"
+      ]
+    },
+    "propertyType": "Departamentos",
+    "propertyPrice": 250000,
+    "developmentStage": "Pre-construcción",
+    "propertyDetails": {
+      "bedrooms": 2,
+      "bathrooms": 2,
+      "halfBathrooms": 1,
+      "surfaceArea": 180,
+      "parkingSpaces": 2,
+      "floors": 4
+    }
+  }
+]

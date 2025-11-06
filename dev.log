@@ -1,0 +1,16 @@
+
+> smart-pre-sale@0.1.0 dev
+> next dev --turbo --hostname 0.0.0.0
+
+  ▲ Next.js 14.2.5 (turbo)
+  - Local:        http://localhost:3000
+  - Network:      http://0.0.0.0:3000
+  - Experiments (use with caution):
+    · turbo
+
+ ✓ Starting...
+ ✓ Compiled in 274ms
+ ✓ Ready in 1048ms
+ ○ Compiling /[locale] ...
+ ✓ Compiled /[locale] in 1403ms
+ GET /es 404 in 1707ms

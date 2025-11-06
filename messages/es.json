@@ -1,0 +1,412 @@
+{
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "update": "Actualizar",
+    "close": "Cerrar",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "loading": "Cargando...",
+    "error": "Error",
+    "success": "Éxito",
+    "confirm": "Confirmar",
+    "yes": "Sí",
+    "no": "No",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "all": "Todos",
+    "none": "Ninguno",
+    "view": "Ver",
+    "actions": "Acciones",
+    "status": "Estado",
+    "date": "Fecha",
+    "amount": "Monto",
+    "total": "Total",
+    "available": "Disponible",
+    "unavailable": "No disponible",
+    "days": "días"
+  },
+  "nav": {
+    "projects": "Proyectos",
+    "myReservations": "Mis reservas",
+    "devPanel": "Panel Dev",
+    "admin": "Admin",
+    "howItWorks": "Cómo funciona",
+    "language": "Idioma",
+    "spanish": "Español",
+    "english": "English"
+  },
+  "home": {
+    "title": "Proyectos verificados",
+    "published": "Publicado",
+    "progress": "Progreso",
+    "deposit": "Depósito",
+    "viewDetail": "Ver detalle →",
+    "noProjects": "No hay proyectos disponibles"
+  },
+  "project": {
+    "propertyInfo": "Información de la propiedad",
+    "propertyType": "Tipo de propiedad",
+    "propertyCost": "Costo de la propiedad",
+    "developmentStage": "Etapa de desarrollo",
+    "bedrooms": "Recámaras",
+    "bathrooms": "Baños completos",
+    "halfBathrooms": "Medios baños",
+    "surfaceArea": "Superficie",
+    "parkingSpaces": "Estacionamientos",
+    "floors": "Niveles/Pisos",
+    "promotionalVideo": "Video promocional",
+    "zoneAndEnvironment": "Zona y entorno",
+    "golf": "Golf",
+    "schools": "Colegios",
+    "transport": "Transporte",
+    "retail": "Comercio",
+    "tabs": {
+      "overview": "Resumen",
+      "documents": "Documentos",
+      "research": "Estudios y datos",
+      "market": "Mercado (precio)",
+      "secondary": "Secundario (reventa)",
+      "timeline": "Cronograma"
+    },
+    "documents": {
+      "title": "Documentos del proyecto",
+      "description": "Documentos disponibles para transparencia y seguridad",
+      "noDocuments": "No hay documentos disponibles"
+    },
+    "research": {
+      "title": "Estudios, reportes, noticias y datos",
+      "noItems": "Sin elementos aún"
+    },
+    "market": {
+      "title": "Precio por slot (histórico)",
+      "last": "Último",
+      "first": "Primero",
+      "variation": "Variación",
+      "note": "*Curva se actualiza con trades del mercado secundario (mock)."
+    },
+    "secondary": {
+      "noRound": "Este proyecto no tiene una ronda activa.",
+      "sellSlots": "Vende tus slots (mercado interno)",
+      "confirmedSlots": "Slots confirmados",
+      "slotsToSell": "Slots a vender",
+      "askPrice": "Precio pedido",
+      "publish": "Publicar",
+      "activeOffers": "Ofertas activas",
+      "noActiveListings": "No hay listados activos.",
+      "buy": "Comprar",
+      "invalidData": "Datos inválidos",
+      "listingPublished": "Listado publicado",
+      "purchaseCompleted": "Compra realizada (simulada)"
+    },
+    "timeline": {
+      "title": "Hitos",
+      "presaleStart": "Inicio de preventa",
+      "currentDeadline": "Fecha límite actual",
+      "addToCalendar": "Agregar a calendario (.ics)",
+      "estimatedDelivery": "Entrega estimada"
+    },
+    "actions": {
+      "title": "Acciones",
+      "group": "Grupo",
+      "depositPerSlot": "Depósito por slot",
+      "viewMyReservations": "Ver mis reservas →"
+    },
+    "kpis": {
+      "totalUnits": "Unidades totales",
+      "available": "Disponibles",
+      "presaleGroup": "Grupo de preventa",
+      "depositPerSlot": "Depósito / slot",
+      "deadline": "Fecha límite"
+    },
+    "status": {
+      "open": "Abierto",
+      "nearly_full": "Casi lleno",
+      "closed": "Cerrado",
+      "not_met": "No cumplido",
+      "fulfilled": "Cumplido"
+    },
+    "progress": "Progreso de preventa"
+  },
+  "reserve": {
+    "title": "Reservar slots",
+    "button": "Reservar",
+    "slots": "Slots",
+    "maxPerPerson": "Máx. {max} por persona",
+    "country": "País",
+    "fullName": "Nombre completo",
+    "phone": "Teléfono",
+    "idNumber": "Identificación (número)",
+    "idPlaceholder": "Pasaporte/INE",
+    "kycRequired": "KYC requerido para depósitos ≥ 1,000.",
+    "submit": "Confirmar reserva",
+    "processing": "Procesando..."
+  },
+  "dashboard": {
+    "title": "Mis reservas",
+    "filters": {
+      "all": "Todas",
+      "pending": "Pendientes",
+      "confirmed": "Confirmadas",
+      "assigned": "Asignadas",
+      "waitlisted": "Lista de espera",
+      "refunded": "Reembolsadas"
+    },
+    "stats": {
+      "totalReservations": "Total reservas",
+      "confirmed": "Confirmadas",
+      "totalAmount": "Monto total"
+    },
+    "noReservations": "Aún no tienes reservas.",
+    "noReservationsFiltered": "No hay reservas con estado \"{status}\".",
+    "reservation": "Reserva",
+    "reservedSlots": "Slots reservados",
+    "totalAmount": "Monto total",
+    "date": "Fecha",
+    "roundGoal": "Meta de ronda",
+    "requestRefund": "Solicitar reembolso",
+    "waitingPayment": "Esperando confirmación de pago",
+    "refundConfirm": "¿Estás seguro de solicitar el reembolso de esta reserva?",
+    "refundRequested": "Reembolso solicitado / aplicado."
+  },
+  "dev": {
+    "title": "Panel Desarrollador",
+    "newProject": "+ Nuevo proyecto",
+    "myProjects": "Mis proyectos",
+    "noProjects": "Aún no has creado ningún proyecto.",
+    "createFirstProject": "Crear primer proyecto",
+    "createProject": "Crear proyecto",
+    "editProject": "Editar proyecto",
+    "backToList": "← Volver a lista",
+    "projectInfo": "Información del proyecto",
+    "financialInfo": "Información Financiera (opcional)",
+    "propertyDetails": "Detalles de la propiedad (opcional)",
+    "roundInfo": "Ronda de preventa",
+    "projectDocuments": "Documentos del proyecto",
+    "projectDocumentsDescription": "Sube documentos PDF con un título descriptivo",
+    "loadingDocuments": "Cargando documentos...",
+    "deleteDocumentConfirm": "¿Estás seguro de que quieres eliminar este documento?",
+    "documentDeleted": "Documento eliminado",
+    "documentDeleteError": "Error al eliminar documento",
+    "fields": {
+      "name": "Nombre del proyecto *",
+      "city": "Ciudad *",
+      "country": "País *",
+      "currency": "Moneda *",
+      "description": "Descripción *",
+      "descriptionPlaceholder": "Describe el proyecto...",
+      "images": "Imágenes (URLs o subir archivos)",
+      "videoUrl": "Video URL (opcional)",
+      "videoUrlPlaceholder": "https://youtube.com/watch?v=...",
+      "videoUrlHelp": "URL de video promocional (YouTube, Vimeo, etc.)",
+      "totalUnits": "Unidades totales",
+      "totalUnitsPlaceholder": "Ej: 120",
+      "totalUnitsHelp": "Número total de unidades del desarrollo",
+      "propertyType": "Tipo de propiedad",
+      "propertyTypeSelect": "Seleccionar...",
+      "propertyTypeOther": "Especificar tipo de propiedad",
+      "propertyPrice": "Costo de la propiedad ({currency})",
+      "propertyPricePlaceholder": "Ej: 250000",
+      "propertyPriceHelp": "Precio por unidad/propiedad",
+      "developmentStage": "Etapa de desarrollo",
+      "developmentStageSelect": "Seleccionar...",
+      "developmentStageOther": "Especificar etapa",
+      "bedrooms": "Recámaras",
+      "bedroomsPlaceholder": "Ej: 3",
+      "bathrooms": "Baños completos",
+      "bathroomsPlaceholder": "Ej: 2",
+      "halfBathrooms": "Medios baños",
+      "halfBathroomsPlaceholder": "Ej: 1",
+      "surfaceArea": "Superficie (m²)",
+      "surfaceAreaPlaceholder": "Ej: 120.5",
+      "parkingSpaces": "Estacionamientos",
+      "parkingSpacesPlaceholder": "Ej: 2",
+      "floors": "Niveles/Pisos",
+      "floorsPlaceholder": "Ej: 2",
+      "goalType": "Tipo meta",
+      "goalValue": "Valor meta *",
+      "depositAmount": "Depósito por slot *",
+      "slotsPerPerson": "Slots por persona *",
+      "deadlineDays": "Días hasta fecha límite *",
+      "rule": "Regla",
+      "groupSlots": "Grupo de preventa (opcional)",
+      "groupSlotsPlaceholder": "Ej: 30",
+      "groupSlotsHelp": "Tamaño del grupo de preventa (slots)"
+    },
+    "propertyTypes": {
+      "apartments": "Departamentos",
+      "houses": "Casas",
+      "lots": "Lotes",
+      "villa": "Villa",
+      "townhouses": "Townhouses",
+      "condos": "Condominios",
+      "other": "Otro"
+    },
+    "stages": {
+      "presale": "Preventa",
+      "preConstruction": "Pre-construcción",
+      "construction": "Construcción",
+      "delivery": "Entrega",
+      "postDelivery": "Post-entrega",
+      "other": "Otro"
+    },
+    "goalTypes": {
+      "reservations": "Reservas",
+      "amount": "Monto"
+    },
+    "rules": {
+      "allOrNothing": "Todo o nada",
+      "partial": "Parcial"
+    },
+    "status": {
+      "draft": "Borrador",
+      "review": "En revisión",
+      "published": "Publicado"
+    },
+    "validation": {
+      "nameRequired": "El nombre es requerido",
+      "cityRequired": "La ciudad es requerida",
+      "countryRequired": "El país es requerido",
+      "descriptionRequired": "La descripción es requerida",
+      "imagesRequired": "Agrega al menos una imagen",
+      "goalValueRequired": "El valor meta debe ser mayor a 0",
+      "depositRequired": "El depósito debe ser mayor a 0",
+      "slotsPerPersonRequired": "Los slots por persona deben ser mayor a 0",
+      "deadlineDaysRequired": "Los días deben ser mayor a 0",
+      "totalUnitsInvalid": "Las unidades totales deben ser un número positivo",
+      "groupSlotsInvalid": "El grupo de preventa debe ser un número positivo",
+      "validationError": "Por favor completa todos los campos requeridos"
+    },
+    "messages": {
+      "projectUpdated": "Proyecto actualizado exitosamente",
+      "projectCreated": "Proyecto y ronda creados exitosamente. Envía a revisión/publicación desde Admin.",
+      "projectSaveError": "No se pudo guardar el proyecto",
+      "loadError": "Error al cargar proyectos",
+      "saving": "Guardando...",
+      "updateProject": "Actualizar proyecto",
+      "createProjectAndRound": "Crear proyecto y ronda"
+    },
+    "round": {
+      "round": "Ronda",
+      "deposit": "Depósito",
+      "noRound": "Sin ronda asociada",
+      "view": "Ver →"
+    }
+  },
+  "admin": {
+    "title": "Panel de Administración",
+    "filters": {
+      "all": "Todos los estados",
+      "draft": "Borradores",
+      "review": "En revisión",
+      "published": "Publicados"
+    },
+    "stats": {
+      "totalProjects": "Total proyectos",
+      "draft": "Borradores",
+      "review": "En revisión",
+      "published": "Publicados"
+    },
+    "noProjects": "No hay proyectos.",
+    "noProjectsFiltered": "No hay proyectos con estado \"{status}\".",
+    "created": "Creado",
+    "publish": "Publicar",
+    "publishing": "Publicando...",
+    "unpublish": "Despublicar",
+    "updating": "Actualizando...",
+    "backToDraft": "Volver a borrador",
+    "closeRound": "Evaluar cierre de ronda",
+    "closeRoundConfirm": "¿Evaluar y cerrar esta ronda? Esto puede generar reembolsos automáticos si no se cumplió la meta.",
+    "roundClosed": "Ronda cerrada. Estado: {status}",
+    "publishConfirm": "¿Publicar este proyecto?",
+    "roundGoal": "Meta de ronda",
+    "depositPerSlot": "Depósito por slot",
+    "deadline": "Fecha límite",
+    "roundStatus": "Estado de ronda",
+    "presaleGroup": "Grupo de preventa",
+    "slots": "slots",
+    "downloadIcs": "Descargar .ics",
+    "viewProject": "Ver proyecto →",
+    "noRound": "Este proyecto no tiene una ronda asociada. El desarrollador debe crear una ronda.",
+    "reservations": "reservas",
+    "messages": {
+      "projectPublished": "Proyecto publicado exitosamente",
+      "projectUpdated": "Proyecto actualizado a \"{status}\"",
+      "updateError": "No se pudo actualizar el proyecto. Intenta nuevamente.",
+      "loadError": "Error al cargar proyectos"
+    }
+  },
+  "forms": {
+    "required": "Este campo es requerido",
+    "invalidEmail": "Email inválido",
+    "invalidNumber": "Número inválido",
+    "minValue": "El valor mínimo es {min}",
+    "maxValue": "El valor máximo es {max}",
+    "selectOption": "Seleccionar..."
+  },
+  "messages": {
+    "error": "Error",
+    "success": "Éxito",
+    "loading": "Cargando...",
+    "saveSuccess": "Guardado exitosamente",
+    "saveError": "Error al guardar",
+    "deleteSuccess": "Eliminado exitosamente",
+    "deleteError": "Error al eliminar",
+    "updateSuccess": "Actualizado exitosamente",
+    "updateError": "Error al actualizar"
+  },
+  "status": {
+    "pending": "Pendiente",
+    "confirmed": "Confirmada",
+    "refunded": "Reembolsada",
+    "assigned": "Asignada",
+    "waitlisted": "Lista de espera",
+    "draft": "Borrador",
+    "review": "En revisión",
+    "published": "Publicado"
+  },
+  "documents": {
+    "upload": "Subir documento",
+    "title": "Título del documento *",
+    "titlePlaceholder": "Ej: Estudio de mercado Cancún 2024",
+    "selectFile": "Seleccionar archivo PDF",
+    "fileSelected": "Archivo seleccionado",
+    "uploadButton": "Subir",
+    "uploading": "Subiendo...",
+    "noFile": "Por favor selecciona un archivo PDF",
+    "fileTooLarge": "El archivo es demasiado grande. Máximo 10MB",
+    "completeFields": "Por favor completa el título y selecciona un archivo PDF",
+    "uploadError": "Error al subir el documento",
+    "download": "Descargar",
+    "noDocuments": "No hay documentos disponibles"
+  },
+  "images": {
+    "addUrl": "Agregar URL",
+    "uploadFile": "Subir imagen",
+    "selectFile": "Seleccionar archivo",
+    "uploading": "Subiendo...",
+    "invalidFile": "Por favor selecciona un archivo de imagen válido",
+    "fileTooLarge": "El archivo es demasiado grande. Máximo 5MB",
+    "uploadError": "Error al subir la imagen"
+  },
+  "features": {
+    "amenities": "Amenidades",
+    "specifications": "Especificaciones"
+  },
+  "error": {
+    "title": "Algo salió mal",
+    "message": "Ocurrió un error inesperado. Por favor intenta nuevamente.",
+    "reload": "Recargar página",
+    "backHome": "Volver al inicio"
+  },
+  "notFound": {
+    "title": "Página no encontrada",
+    "message": "Lo sentimos, la página que buscas no existe.",
+    "backHome": "Volver al inicio"
+  }
+}
+
