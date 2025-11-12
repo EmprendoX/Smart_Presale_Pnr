@@ -139,6 +139,19 @@ export type KycDocument = {
   type: 'id_front' | 'id_back' | 'proof_of_address';
 };
 
+const mapKycPersonalDataToProfile = (data: KycPersonalData) => ({
+  first_name: data.firstName,
+  last_name: data.lastName,
+  birthdate: data.birthdate,
+  country: data.country,
+  phone: data.phone,
+  address_line1: data.addressLine1,
+  address_line2: data.addressLine2 ?? null,
+  city: data.city,
+  state: data.state ?? null,
+  postal_code: data.postalCode ?? null
+});
+
 export const saveKycPersonalData = async (data: KycPersonalData) => {
   const client = getSupabaseBrowserClient();
   const {
@@ -155,12 +168,12 @@ export const saveKycPersonalData = async (data: KycPersonalData) => {
   }
 
   const payload = {
-    userId: user.id,
+    user_id: user.id,
     status: 'basic',
-    ...data
+    ...mapKycPersonalDataToProfile(data)
   };
 
-  const { error } = await client.from('kyc_profiles').upsert(payload, { onConflict: 'userId' });
+  const { error } = await client.from('kyc_profiles').upsert(payload, { onConflict: 'user_id' });
   if (error) {
     throw error;
   }
