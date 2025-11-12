@@ -624,13 +624,26 @@ export const findRoundByProject = async (projectId: string) => {
   return db.getRoundByProjectId(projectId);
 };
 
+const PROJECT_IMAGE_PLACEHOLDER = "/images/project-placeholder.svg";
+
 export const listPublishedProjects = async (filter?: { listingType?: ListingType }) => {
   const projects = await db.getProjects();
-  return projects.filter(p => {
-    if (p.status !== "published") return false;
-    if (filter?.listingType && p.listingType !== filter.listingType) return false;
-    return true;
-  });
+  return projects
+    .filter(p => {
+      if (p.status !== "published") return false;
+      if (filter?.listingType && p.listingType !== filter.listingType) return false;
+      return true;
+    })
+    .map(project => {
+      if (project.images && project.images.length > 0) {
+        return project;
+      }
+
+      return {
+        ...project,
+        images: [PROJECT_IMAGE_PLACEHOLDER]
+      };
+    });
 };
 
 export const byRoundReservations = async (roundId: string) => {

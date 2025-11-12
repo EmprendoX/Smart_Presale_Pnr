@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import Script from "next/script";
+import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Progress } from "@/components/ui/Progress";
@@ -28,6 +29,10 @@ type ProjectWithMetrics = {
   percent: number;
   summaryText?: string;
 };
+
+const PROJECT_IMAGE_PLACEHOLDER = "/images/project-placeholder.svg";
+const PROJECT_IMAGE_BLUR =
+  "data:image/svg+xml;base64,PHN2ZyB4bWxucz0naHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmcnIHZpZXdCb3g9JzAgMCAxMCA2Jz48cmVjdCB3aWR0aD0nMTAnIGhlaWdodD0nNicgZmlsbD0nJTIzZTVlN2ViJy8+PHJlY3Qgd2lkdGg9JzEwJyBoZWlnaHQ9JzMnIGZpbGw9JyUyM2Y0ZjRmNScvPjwvc3ZnPg==";
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const t = await getTranslations({ locale: params.locale, namespace: "projects" });
@@ -96,17 +101,25 @@ const renderProjectCard = (
   const deposit = round ? fmtCurrency(round.depositAmount, project.currency, locale) : null;
   const price = project.askingPrice ? fmtCurrency(project.askingPrice, project.currency, locale) : null;
 
+  const coverImage = project.images?.[0] ?? PROJECT_IMAGE_PLACEHOLDER;
+
   return (
-    <Card key={project.id} className="overflow-hidden border-neutral-200 shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <Card
+      key={project.id}
+      className="group overflow-hidden rounded-2xl border border-neutral-200/80 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+    >
       <CardContent className="p-0">
-        <div
-          className="h-48 w-full bg-neutral-200"
-          style={{
-            backgroundImage: project.images?.[0] ? `url(${project.images[0]})` : undefined,
-            backgroundSize: "cover",
-            backgroundPosition: "center"
-          }}
-        />
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-100">
+          <Image
+            src={coverImage}
+            alt={`Imagen del proyecto ${project.name}`}
+            fill
+            sizes="(min-width: 1280px) 360px, (min-width: 768px) 45vw, 90vw"
+            className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            placeholder="blur"
+            blurDataURL={PROJECT_IMAGE_BLUR}
+          />
+        </div>
         <div className="space-y-4 p-5">
           <div className="flex items-center justify-between">
             <div>
