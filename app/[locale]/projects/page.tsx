@@ -106,10 +106,10 @@ const renderProjectCard = (
   return (
     <Card
       key={project.id}
-      className="group overflow-hidden rounded-2xl border border-neutral-200/80 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
+      className="group overflow-hidden rounded-2xl border border-blue-100 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
     >
       <CardContent className="p-0">
-        <div className="relative aspect-[4/3] w-full overflow-hidden bg-neutral-100">
+        <div className="relative aspect-[4/3] w-full overflow-hidden bg-blue-50">
           <Image
             src={coverImage}
             alt={`Imagen del proyecto ${project.name}`}
@@ -163,7 +163,7 @@ const renderProjectCard = (
             </div>
           ) : null}
 
-          <Link href={href} className="inline-flex items-center text-sm font-medium text-brand hover:underline">
+          <Link href={href} className="inline-flex items-center text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline transition-colors">
             {t("labels.openProject")}
           </Link>
         </div>

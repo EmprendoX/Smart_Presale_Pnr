@@ -3,12 +3,12 @@
 @tailwind utilities;
 
 :root {
-  --tenant-primary: #0b8bd9;
-  --tenant-primary-hover: #006bb6;
-  --tenant-primary-soft: #e0f4ff;
+  --tenant-primary: #00B4D8;
+  --tenant-primary-hover: #0077B6;
+  --tenant-primary-soft: #90E0EF;
   --tenant-primary-contrast: #ffffff;
-  --tenant-secondary: #1e293b;
-  --tenant-accent: #36a9f0;
+  --tenant-secondary: #0077B6;
+  --tenant-accent: #90E0EF;
   --tenant-background: #ffffff;
   --tenant-surface: #ffffff;
   --tenant-foreground: #0f172a;
@@ -24,8 +24,8 @@ body {
   color: var(--tenant-foreground);
   font-family: var(--tenant-font-family), ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background-image:
-    radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--tenant-primary) 12%, transparent), transparent 60%),
-    radial-gradient(circle at 85% 0%, color-mix(in srgb, var(--tenant-accent) 14%, transparent), transparent 55%);
+    radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--tenant-primary) 8%, transparent), transparent 70%),
+    radial-gradient(circle at 85% 0%, color-mix(in srgb, var(--tenant-accent) 10%, transparent), transparent 65%);
   background-attachment: fixed;
   background-size: 1400px 1400px, 1200px 1200px;
   @apply antialiased;
@@ -34,9 +34,9 @@ body {
 @media (prefers-color-scheme: dark) {
   body {
     background-image:
-      radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--tenant-primary) 18%, transparent), transparent 58%),
-      radial-gradient(circle at 80% 10%, color-mix(in srgb, var(--tenant-secondary) 16%, transparent), transparent 60%);
-    background-color: var(--tenant-background);
+      radial-gradient(circle at 15% 10%, color-mix(in srgb, var(--tenant-primary) 12%, transparent), transparent 65%),
+      radial-gradient(circle at 80% 10%, color-mix(in srgb, var(--tenant-accent) 10%, transparent), transparent 65%);
+    background-color: #f8f9fa;
   }
 }
 
