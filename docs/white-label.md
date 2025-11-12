@@ -62,7 +62,6 @@ NEXT_PUBLIC_SUPABASE_ANON_KEY=...
 SUPABASE_SERVICE_ROLE_KEY=...
 DEFAULT_TENANT_SLUG=acme
 TENANT_BASE_DOMAIN=smartpresale.app
-USE_SUPABASE=true
 ```
 
 Commit this file only if you manage secrets via a secure store. Otherwise keep it local

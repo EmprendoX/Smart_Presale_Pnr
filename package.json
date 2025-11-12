@@ -9,6 +9,7 @@
     "lint": "next lint",
     "tenant:bootstrap": "node scripts/tenant-bootstrap.js",
     "seed:users": "node scripts/seed-supabase-users.mjs",
+    "migrate:app-users": "node scripts/migrate-app-users.mjs",
     "test:e2e": "vitest run tests/e2e"
   },
   "dependencies": {

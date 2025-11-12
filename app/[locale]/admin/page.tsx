@@ -220,7 +220,7 @@ export default function Admin() {
               Debes iniciar sesión para acceder a este panel.
             </p>
             <p className="text-sm text-neutral-500">
-              Si estás en modo JSON, usa el usuario admin: u_admin_1
+              Puedes ejecutar <code>npm run seed:users</code> para crear la cuenta demo u_admin_1.
             </p>
             <Link href="/sign-up">
               <Button className="mt-4">Iniciar Sesión</Button>

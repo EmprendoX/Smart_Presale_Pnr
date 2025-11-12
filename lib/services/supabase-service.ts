@@ -1337,7 +1337,7 @@ export class SupabaseService implements DatabaseService {
 
     if (!serviceKey) {
       throw new Error(
-        'SupabaseService requires SUPABASE_SERVICE_ROLE_KEY to perform privileged operations. Provide the key when USE_SUPABASE=true.'
+        'SupabaseService requires SUPABASE_SERVICE_ROLE_KEY to perform privileged operations. Provide the service role key to enable database helpers.'
       );
     }
 

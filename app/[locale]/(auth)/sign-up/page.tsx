@@ -53,14 +53,14 @@ export default function SignUpPage() {
         : undefined;
       const result = await signInWithOtp(email, { redirectTo });
       
-      // Verificar si fue autenticación automática (modo JSON)
+      // Verificar si fue autenticación automática (solo entornos demo)
       if (result?.autoAuthenticated) {
         setStatus('sent');
         setMessage(t('autoAuthenticated'));
-        // En modo JSON, el usuario ya está autenticado, refrescar sesión para que el useEffect detecte el cambio
+        // En entornos demo, el usuario ya está autenticado; refrescar sesión para que el useEffect detecte el cambio
         await refreshSession();
       } else {
-        // Modo Supabase: se envió el email
+        // Supabase: se envió el email
         setStatus('sent');
         setMessage(t('otpSent'));
       }

@@ -1,13 +1,41 @@
 #!/usr/bin/env node
-import { promises as fs } from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
 import { createClient } from '@supabase/supabase-js';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '..');
-const dataFile = path.join(projectRoot, 'data', 'users.json');
+const demoUsers = [
+  {
+    id: 'u_buyer_1',
+    name: 'Ana Compradora',
+    role: 'buyer',
+    kycStatus: 'basic',
+    tenantId: 'tenant_default',
+    email: 'ana@example.com',
+    metadata: {
+      phone: '+52 555 555 0000'
+    }
+  },
+  {
+    id: 'u_dev_1',
+    name: 'Carlos Dev',
+    role: 'developer',
+    kycStatus: 'verified',
+    tenantId: 'tenant_default',
+    email: 'carlos@example.com',
+    metadata: {
+      company: 'BlueRock Dev S.A.'
+    }
+  },
+  {
+    id: 'u_admin_1',
+    name: 'Pat Admin',
+    role: 'admin',
+    kycStatus: 'verified',
+    tenantId: 'tenant_default',
+    email: 'pat@example.com',
+    metadata: {
+      notes: 'Super admin demo'
+    }
+  }
+];
 
 function getEnv(name, required = true) {
   const value = process.env[name];
@@ -17,29 +45,16 @@ function getEnv(name, required = true) {
   return value;
 }
 
-async function loadUsers() {
-  try {
-    const content = await fs.readFile(dataFile, 'utf8');
-    const parsed = JSON.parse(content);
-    if (!Array.isArray(parsed)) {
-      throw new Error('users.json must contain an array of users');
-    }
-    return parsed;
-  } catch (error) {
-    throw new Error(`Failed to read demo users from ${dataFile}: ${error.message}`);
-  }
-}
-
 async function seed() {
   const url = getEnv('NEXT_PUBLIC_SUPABASE_URL');
   const serviceKey = getEnv('SUPABASE_SERVICE_ROLE_KEY');
   const anonKey = getEnv('NEXT_PUBLIC_SUPABASE_ANON_KEY', false);
 
   console.log('➡️  Seeding demo users to Supabase...');
-  const users = await loadUsers();
+  const users = demoUsers;
 
   if (!users.length) {
-    console.log('⚠️  users.json is empty, nothing to seed.');
+    console.log('⚠️  No demo users defined, nothing to seed.');
     return;
   }
 

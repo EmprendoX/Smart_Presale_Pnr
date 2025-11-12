@@ -5,7 +5,7 @@ Esta guía resume las verificaciones manuales que se deben ejecutar en cada rele
 ## Preparación
 
 1. Restaurar los usuarios demo ejecutando el procedimiento descrito en [docs/demo-users.md](./demo-users.md).
-2. Asegurarse de que el proyecto corra en modo Supabase (`USE_SUPABASE=true`).
+2. Asegurarse de que el proyecto corra con credenciales válidas de Supabase.
 3. Limpiar cookies/sesión del navegador antes de iniciar cada escenario.
 
 ## Escenario 1: Login por OTP

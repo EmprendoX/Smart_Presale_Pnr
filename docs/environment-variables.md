@@ -2,17 +2,14 @@
 
 This document describes all environment variables needed for Smart Pre-Sale.
 
-## Required Variables (Supabase Mode)
-
-When `USE_SUPABASE=true`, these variables are required:
+## Required Variables (Supabase)
 
 ### Supabase Activation Checklist
 
-1. Set `USE_SUPABASE=true` en `.env.local` o en tu entorno.
-2. Exporta `NEXT_PUBLIC_SUPABASE_URL`.
-3. Exporta `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Exporta `SUPABASE_SERVICE_ROLE_KEY` (solo en el backend/servidor).
-5. Reinicia `npm run dev` para que Next.js lea los cambios.
+1. Exporta `NEXT_PUBLIC_SUPABASE_URL`.
+2. Exporta `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+3. Exporta `SUPABASE_SERVICE_ROLE_KEY` (solo en el backend/servidor).
+4. Reinicia `npm run dev` para que Next.js lea los cambios.
 
 ### `NEXT_PUBLIC_SUPABASE_URL`
 - **Description**: Your Supabase project URL
@@ -29,11 +26,6 @@ When `USE_SUPABASE=true`, these variables are required:
 - **Example**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 - **Where to get it**: Supabase Dashboard → Settings → API → Project API keys → `service_role` `secret`
 - **⚠️ WARNING**: This key bypasses Row Level Security. Never expose it to the client!
-
-### `USE_SUPABASE`
-- **Description**: Enable Supabase mode
-- **Values**: `true` or `false`
-- **Default**: `false` (uses JSON files)
 
 ## Optional Variables
 
@@ -75,7 +67,6 @@ Update the `.env.local` file in the project root (or create it if missing) with:
 
 ```env
 # Supabase Configuration
-USE_SUPABASE=true
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
@@ -93,7 +84,7 @@ STRIPE_CONNECT_ACCOUNT_ID=
 
 ## Security Notes
 
-1. The repository incluye un `.env.local` con `USE_SUPABASE=false` para desarrollo rápido sin credenciales. Mantén tus claves reales fuera de control de versiones.
+1. Mantén tus claves reales fuera de control de versiones.
 2. **For production**, set these variables in your hosting platform:
    - Vercel: Project Settings → Environment Variables
    - Netlify: Site Settings → Build & Deploy → Environment

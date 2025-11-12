@@ -163,7 +163,7 @@ export default function DevPanel() {
               Debes iniciar sesión para acceder a este panel.
             </p>
             <p className="text-sm text-neutral-500">
-              Si estás en modo JSON, usa uno de los usuarios demo: u_buyer_1, u_dev_1, u_admin_1
+              Si necesitas cuentas demo, ejecuta <code>npm run seed:users</code> y usa: u_buyer_1, u_dev_1, u_admin_1
             </p>
             <Link href="/sign-up">
               <Button className="mt-4">Iniciar Sesión</Button>

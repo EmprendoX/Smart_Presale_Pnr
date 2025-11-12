@@ -2,7 +2,7 @@
 
 **Objetivo**: Formalizar preventas grupales con depósitos y reglas transparentes.
 
-**Stack**: Next.js 14 (App Router), TypeScript, Tailwind. **Persistencia en archivos JSON** (listo para migrar a Supabase).
+**Stack**: Next.js 14 (App Router), TypeScript, Tailwind. **Persistencia en Supabase (Postgres + Storage)**.
 
 ## Comandos
 
@@ -13,20 +13,19 @@ npm run dev  # localhost:3000
 
 ## Configuración de entorno local
 
-- El repositorio incluye un archivo `.env.local` con `USE_SUPABASE=false` para arrancar en modo rápido usando los datos JSON de `data/`.
-- Ejecuta `npm run dev` y la app quedará disponible en [http://localhost:3000](http://localhost:3000) sin dependencias externas.
+- Copia el `.env.local` incluido y actualiza las credenciales de Supabase antes de arrancar el proyecto.
+- Ejecuta `npm run dev` y la app quedará disponible en [http://localhost:3000](http://localhost:3000).
 
-### Cambiar a Supabase
+### Configurar Supabase
 
-1. Edita `.env.local` y cambia `USE_SUPABASE=false` por `USE_SUPABASE=true`.
-2. Exporta/define en tu shell los valores reales de:
+1. Edita `.env.local` e introduce los valores reales de:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
-   (puedes usar `export VAR=valor` antes de `npm run dev` o agregarlos al propio `.env.local`).
-3. Vuelve a ejecutar `npm run dev`.
+   - `DEFAULT_TENANT_ID` / `DEFAULT_TENANT_SLUG` (según la topología del proyecto)
+2. Vuelve a ejecutar `npm run dev` para cargar la configuración.
 
-> ℹ️ El servicio de pagos usa un **driver mock** por defecto. Solo debes configurar las variables de Stripe si quieres probar cobros reales; en modo JSON y Supabase sin Stripe seguirá funcionando con el mock.
+> ℹ️ El servicio de pagos usa un **driver mock** por defecto. Solo debes configurar las variables de Stripe si quieres probar cobros reales; sin Stripe seguirá funcionando con el mock.
 
 ## Funcionalidad
 
@@ -36,15 +35,15 @@ npm run dev  # localhost:3000
 * **Panel Dev**: Listar proyectos creados, crear/editar proyectos + rondas, gestión completa.
 * **Panel Admin**: Publicar proyectos, filtrar por estado, evaluar cierre de ronda (cumple/no cumple → reembolsos automáticos).
 
-## Persistencia Actual (JSON)
+## Persistencia
 
-Los datos se almacenan en archivos JSON en la carpeta `data/`:
-- `data/projects.json` - Proyectos
-- `data/rounds.json` - Rondas de preventa
-- `data/reservations.json` - Reservas
-- `data/transactions.json` - Transacciones
+Toda la información vive en Supabase. Las tablas mínimas son:
+- `tenants`, `tenant_settings`
+- `projects`, `rounds`, `reservations`, `transactions`
+- `app_users`, `developers`, `clients`
+- `kyc_profiles`, `kyc_documents`
 
-Los datos persisten entre reinicios del servidor (no se pierden en hot reload de desarrollo).
+Ejecuta los scripts SQL de la carpeta `supabase/` para preparar el esquema completo antes de levantar la app.
 
 ## Roles Demo
 
@@ -55,7 +54,7 @@ Usuarios disponibles:
 - **Carlos (Dev)**: `u_dev_1`
 - **Pat (Admin)**: `u_admin_1`
 
-## Migración a Supabase
+## Checklist de Supabase
 
 ### Paso 1: Crear Proyecto en Supabase
 
@@ -70,8 +69,8 @@ Usuarios disponibles:
 
 ### Paso 2: Configurar Variables de Entorno
 
-1. Actualiza el `.env.local` incluido en el repo cambiando `USE_SUPABASE=false` a `USE_SUPABASE=true`.
-2. Añade en el mismo archivo (o exporta en tu terminal) las variables reales `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`.
+1. Añade en `.env.local` (o exporta en tu terminal) las variables reales `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`.
+2. Define `DEFAULT_TENANT_ID`/`DEFAULT_TENANT_SLUG` para que coincidan con los registros iniciales.
 3. Revisa el checklist de variables en [`docs/environment-variables.md`](docs/environment-variables.md) antes de levantar el proyecto.
 
 ### Paso 3: Crear Tablas y Configuración
@@ -126,21 +125,15 @@ En el Dashboard de Supabase:
 3. Verifica el bucket de storage:
    - Ve a **Storage** → Deberías ver el bucket `kyc-documents`
 
-### Paso 6: Migrar Datos JSON a Supabase
+### Paso 6: Auditar usuarios existentes
 
-Si tienes datos existentes en archivos JSON, ejecuta el script de migración:
+Si tu proyecto ya cuenta con usuarios reales creados antes de esta migración, ejecuta el script para garantizar que tengan los campos requeridos en `app_users`:
 
 ```bash
-npx ts-node -r tsconfig-paths/register scripts/migrate-to-supabase.ts
+node scripts/migrate-app-users.mjs
 ```
 
-Este script:
-- Migra todos los datos de `data/*.json` a Supabase
-- Preserva IDs y relaciones
-- Maneja duplicados (upsert)
-- Muestra progreso en consola
-
-**Nota**: Asegúrate de tener configuradas las variables de entorno antes de ejecutar el script.
+El script completa `tenant_id`, `role`, `kyc_status`, `name` y `metadata` cuando faltan, preservando los demás atributos.
 
 ### Paso 7: Probar la Aplicación
 
@@ -152,7 +145,7 @@ npm run dev
 2. Verifica que la aplicación esté usando Supabase:
    - Abre la consola del navegador
    - No deberías ver errores relacionados con Supabase
-   - Los datos deberían cargarse desde Supabase, no desde JSON
+   - Los datos se cargan desde Supabase
 
 3. Prueba las funcionalidades principales:
    - **Autenticación**: Registro e inicio de sesión
@@ -162,7 +155,7 @@ npm run dev
 
 ## Estructura de Datos
 
-### Mapeo JSON → Supabase
+### Mapeo JSON → Supabase (referencia histórica)
 
 | Campo JSON | Campo Supabase | Tipo |
 |-----------|----------------|------|
@@ -251,19 +244,15 @@ Eventos a implementar:
 
 ```
 lib/
-├── config.ts              # Configuración de servicio (JSON/Supabase)
+├── config.ts              # Configuración de servicios Supabase
 ├── services/
 │   ├── db.ts             # Interfaz común
-│   ├── json-db-service.ts # Implementación JSON
-│   └── supabase-service.ts # Implementación Supabase (placeholder)
-├── storage/
-│   └── json-db.ts        # Funciones de lectura/escritura JSON
+│   └── supabase-service.ts # Implementación Supabase
 └── types.ts              # Tipos TypeScript
 ```
 
 ## Notas de Desarrollo
 
-- Los datos JSON se inicializan automáticamente con proyectos de ejemplo si no existen
-- Los cambios se guardan inmediatamente en los archivos JSON
-- El directorio `data/` se crea automáticamente si no existe
-- Para producción, considera usar Supabase para mejor escalabilidad y seguridad
+- Todas las operaciones de datos usan Supabase (Postgres). Asegúrate de tener las tablas sincronizadas con los scripts SQL incluidos.
+- Versiona los cambios de esquema en `supabase/schema.sql` y aplica los ajustes con el CLI antes de desplegar.
+- Configura variables de entorno en cada entorno (local, staging, producción) mediante secretos seguros.

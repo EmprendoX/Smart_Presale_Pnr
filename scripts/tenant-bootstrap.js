@@ -164,8 +164,7 @@ function writeEnvFile(filePath, entries) {
     NEXT_PUBLIC_SUPABASE_ANON_KEY: anonKey,
     SUPABASE_SERVICE_ROLE_KEY: serviceRoleKey,
     DEFAULT_TENANT_SLUG: args.tenantSlug,
-    TENANT_BASE_DOMAIN: args.baseDomain || "",
-    USE_SUPABASE: "true"
+    TENANT_BASE_DOMAIN: args.baseDomain || ""
   });
 
   console.log("➡️  Seeding core schema to Supabase...");

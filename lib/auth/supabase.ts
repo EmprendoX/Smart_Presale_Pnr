@@ -10,20 +10,15 @@ let browserClient: SupabaseClient | null = null;
  * Verifica si Supabase está habilitado y configurado correctamente
  */
 export function isSupabaseEnabled(): boolean {
-  const useSupabase = process.env.USE_SUPABASE === 'true';
-  if (!useSupabase) {
-    return false;
-  }
-  
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
+
   return !!(url && anonKey);
 }
 
 function getSupabaseCredentials() {
   if (!isSupabaseEnabled()) {
-    throw new Error('Supabase is not enabled. Set USE_SUPABASE=true and configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+    throw new Error('Supabase is not enabled. Configure NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
   }
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
