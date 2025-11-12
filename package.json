@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "tenant:bootstrap": "node scripts/tenant-bootstrap.js",
-    "seed:users": "node scripts/seed-supabase-users.mjs"
+    "seed:users": "node scripts/seed-supabase-users.mjs",
+    "test:e2e": "vitest run tests/e2e"
   },
   "dependencies": {
     "@supabase/auth-helpers-nextjs": "^0.10.0",
@@ -28,6 +29,7 @@
     "eslint-config-next": "14.2.5",
     "postcss": "8.4.31",
     "tailwindcss": "3.4.4",
-    "typescript": "5.4.5"
+    "typescript": "5.4.5",
+    "vitest": "1.6.0"
   }
 }

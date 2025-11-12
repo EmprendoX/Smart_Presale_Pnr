@@ -21,7 +21,8 @@
       ]
     },
     "types": [
-      "node"
+      "node",
+      "vitest"
     ],
     "allowJs": true,
     "esModuleInterop": true,

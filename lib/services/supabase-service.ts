@@ -1324,20 +1324,38 @@ const mapClientUpdatesToRow = (updates: Partial<Client>): Partial<ClientRow> => 
 };
 export class SupabaseService implements DatabaseService {
   private client: SupabaseClient;
+  private readonly usesServiceRole: boolean;
 
-  constructor(client?: SupabaseClient) {
+  constructor(client?: SupabaseClient, options?: { usesServiceKey?: boolean }) {
     if (client) {
       this.client = client;
+      this.usesServiceRole = options?.usesServiceKey ?? true;
       return;
     }
 
-    const { url, anonKey, serviceKey } = resolveSupabaseEnv();
-    this.client = createClient(url, serviceKey ?? anonKey, {
+    const { url, serviceKey } = resolveSupabaseEnv();
+
+    if (!serviceKey) {
+      throw new Error(
+        'SupabaseService requires SUPABASE_SERVICE_ROLE_KEY to perform privileged operations. Provide the key when USE_SUPABASE=true.'
+      );
+    }
+
+    this.client = createClient(url, serviceKey, {
       auth: {
         persistSession: true,
         autoRefreshToken: true
       }
     });
+    this.usesServiceRole = true;
+  }
+
+  private ensureServiceRole(operation: string) {
+    if (!this.usesServiceRole) {
+      throw new Error(
+        `[SupabaseService] ${operation} requires SUPABASE_SERVICE_ROLE_KEY. Configure the service role key before using privileged helpers.`
+      );
+    }
   }
 
   /** Expose raw Supabase client when needed */
@@ -1506,6 +1524,7 @@ export class SupabaseService implements DatabaseService {
   }
 
   async upsertUser(user: User): Promise<User> {
+    this.ensureServiceRole('upsertUser');
     const existing = await this.getUserById(user.id);
     if (existing) {
       const updated = await this.updateSingle<UserRow, User>(

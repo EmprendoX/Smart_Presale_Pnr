@@ -1,9 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import type { Provider as OAuthProvider, Session } from '@supabase/supabase-js';
 import { getAuthClient, isSupabaseEnabled, mapSupabaseUser, type AppUser } from '@/lib/auth';
 import { mapJsonUser } from '@/lib/auth/json-auth';
+import { ensureSupabaseAppUser } from '@/lib/auth/supabase-sync';
 
 type AuthContextValue = {
   user: AppUser | null;
@@ -28,6 +29,23 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const ensureSupabaseUserRecord = useCallback(
+    async (nextSession: Session | null) => {
+      if (!isSupabaseEnabled()) {
+        return;
+      }
+
+      if (!nextSession?.user) {
+        return;
+      }
+      try {
+        await ensureSupabaseAppUser(nextSession.user);
+      } catch (syncError) {
+        console.error('[AuthProvider] Failed to sync Supabase user record:', syncError);
+      }
+    },
+    []
+  );
 
   // Obtener cliente de autenticación (funciona en ambos modos)
   let client;
@@ -74,9 +92,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         } else {
           const hasSession = !!data.session;
           console.log('[AuthProvider] Session loaded:', { hasSession, userId: data.session?.user?.id });
-          
+
           setSession(data.session ?? null);
-          
+          await ensureSupabaseUserRecord(data.session ?? null);
+
           if (userResult.error) {
             console.error('[AuthProvider] Error fetching user:', userResult.error.message);
             // Mapear usuario según el modo
@@ -126,7 +145,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       });
 
       setSession(nextSession ?? null);
-      
+      await ensureSupabaseUserRecord(nextSession ?? null);
+
       // Obtener usuario completo para asegurar que tenemos los datos más recientes
       if (nextSession) {
         try {
@@ -175,7 +195,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         unsubscribe();
       }
     };
-  }, [client]);
+  }, [client, ensureSupabaseUserRecord]);
 
   const value = useMemo<AuthContextValue>(
     () => ({
@@ -228,6 +248,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         }
 
         setSession(data.session ?? null);
+        await ensureSupabaseUserRecord(data.session ?? null);
         if (userResult.error) {
           console.error('[AuthProvider] Error refreshing user:', userResult.error.message);
           // Mapear según el modo
