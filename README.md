@@ -11,6 +11,23 @@ npm install  # o pnpm install / yarn install
 npm run dev  # localhost:3000
 ```
 
+## Configuración de entorno local
+
+- El repositorio incluye un archivo `.env.local` con `USE_SUPABASE=false` para arrancar en modo rápido usando los datos JSON de `data/`.
+- Ejecuta `npm run dev` y la app quedará disponible en [http://localhost:3000](http://localhost:3000) sin dependencias externas.
+
+### Cambiar a Supabase
+
+1. Edita `.env.local` y cambia `USE_SUPABASE=false` por `USE_SUPABASE=true`.
+2. Exporta/define en tu shell los valores reales de:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   (puedes usar `export VAR=valor` antes de `npm run dev` o agregarlos al propio `.env.local`).
+3. Vuelve a ejecutar `npm run dev`.
+
+> ℹ️ El servicio de pagos usa un **driver mock** por defecto. Solo debes configurar las variables de Stripe si quieres probar cobros reales; en modo JSON y Supabase sin Stripe seguirá funcionando con el mock.
+
 ## Funcionalidad
 
 * **Home**: Listado de proyectos publicados + progreso/depósito.
@@ -53,16 +70,9 @@ Usuarios disponibles:
 
 ### Paso 2: Configurar Variables de Entorno
 
-Crea un archivo `.env.local` en la raíz del proyecto con:
-
-```env
-USE_SUPABASE=true
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
-SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
-```
-
-Para más detalles sobre variables de entorno, consulta [`docs/environment-variables.md`](docs/environment-variables.md).
+1. Actualiza el `.env.local` incluido en el repo cambiando `USE_SUPABASE=false` a `USE_SUPABASE=true`.
+2. Añade en el mismo archivo (o exporta en tu terminal) las variables reales `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`.
+3. Revisa el checklist de variables en [`docs/environment-variables.md`](docs/environment-variables.md) antes de levantar el proyecto.
 
 ### Paso 3: Crear Tablas y Configuración
 
