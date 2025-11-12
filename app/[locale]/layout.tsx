@@ -12,6 +12,19 @@ import type { Tenant, TenantSettings } from '@/lib/types';
 import { buildCssVariables, resolveTenantTheme } from '@/lib/tenant/theme';
 import '../globals.css';
 
+const fallbackCssVariables: Record<string, string> = {
+  '--tenant-primary': '#0b8bd9',
+  '--tenant-primary-hover': '#006bb6',
+  '--tenant-primary-soft': '#e0f4ff',
+  '--tenant-primary-contrast': '#ffffff',
+  '--tenant-secondary': '#1e293b',
+  '--tenant-accent': '#36a9f0',
+  '--tenant-background': '#ffffff',
+  '--tenant-surface': '#ffffff',
+  '--tenant-foreground': '#0f172a',
+  '--tenant-font-family': 'Inter'
+};
+
 // Mensajes por defecto como fallback
 const defaultMessages = {
   nav: {
@@ -50,6 +63,7 @@ export default async function LocaleLayout({
   const tenantContext = extractTenantContext();
   const theme = resolveTenantTheme(tenantContext.settings);
   const cssVariables = buildCssVariables(theme);
+  const mergedCssVariables = { ...fallbackCssVariables, ...cssVariables };
 
   // Obtener mensajes con manejo de errores
   let messages: any = defaultMessages;
@@ -72,7 +86,7 @@ export default async function LocaleLayout({
   return (
     <html lang={locale}>
       <body
-        style={cssVariables as CSSProperties}
+        style={mergedCssVariables as CSSProperties}
         className="bg-[color:var(--tenant-background)] text-foreground"
         data-tenant={tenantContext.tenant?.slug ?? 'default'}
       >
