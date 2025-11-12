@@ -14,11 +14,13 @@ npm run dev  # localhost:3000
 ## Configuración de entorno local
 
 - Copia el `.env.local` incluido y actualiza las credenciales de Supabase antes de arrancar el proyecto.
+- Define `USE_SUPABASE=true` en todos los entornos que deben hablar con la instancia real. Solo desactívalo (`USE_SUPABASE=false`) al ejecutar pruebas locales con datos JSON.
 - Ejecuta `npm run dev` y la app quedará disponible en [http://localhost:3000](http://localhost:3000).
 
 ### Configurar Supabase
 
 1. Edita `.env.local` e introduce los valores reales de:
+   - `USE_SUPABASE`
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
    - `SUPABASE_SERVICE_ROLE_KEY`
@@ -72,6 +74,7 @@ Usuarios disponibles:
 1. Añade en `.env.local` (o exporta en tu terminal) las variables reales `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY` y `SUPABASE_SERVICE_ROLE_KEY`.
 2. Define `DEFAULT_TENANT_ID`/`DEFAULT_TENANT_SLUG` para que coincidan con los registros iniciales.
 3. Revisa el checklist de variables en [`docs/environment-variables.md`](docs/environment-variables.md) antes de levantar el proyecto.
+4. Confirma que `USE_SUPABASE=true`; el modo JSON solo se conserva para pruebas locales y no debe usarse en staging o producción.
 
 ### Paso 3: Crear Tablas y Configuración
 
@@ -152,6 +155,18 @@ npm run dev
    - **KYC**: Completar perfil y subir documentos
    - **Proyectos**: Crear y listar proyectos
    - **Reservas**: Crear reservas y procesar pagos
+
+## Despliegue
+
+1. Configura las variables de entorno en la plataforma de hosting (Vercel, Netlify, etc.):
+   - `USE_SUPABASE=true`
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
+   - `DEFAULT_TENANT_ID`, `DEFAULT_TENANT_SLUG` y cualquier variable opcional que utilices.
+2. Ejecuta las migraciones de Supabase en el proyecto remoto (puedes usar los scripts de `supabase/` o la CLI oficial).
+3. Despliega la aplicación (`vercel deploy`, `npm run build && npm run start`, etc.).
+4. Verifica en el entorno de staging/producción que el flujo de autenticación (sign-up/sign-in con Supabase) funcione con usuarios reales. El modo JSON solo debe emplearse en entornos de desarrollo locales para pruebas rápidas.
 
 ## Estructura de Datos
 

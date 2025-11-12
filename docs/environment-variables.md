@@ -6,10 +6,16 @@ This document describes all environment variables needed for Smart Pre-Sale.
 
 ### Supabase Activation Checklist
 
-1. Exporta `NEXT_PUBLIC_SUPABASE_URL`.
-2. Exporta `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-3. Exporta `SUPABASE_SERVICE_ROLE_KEY` (solo en el backend/servidor).
-4. Reinicia `npm run dev` para que Next.js lea los cambios.
+1. Exporta `USE_SUPABASE=true` en todos los entornos conectados a la base real.
+2. Exporta `NEXT_PUBLIC_SUPABASE_URL`.
+3. Exporta `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
+4. Exporta `SUPABASE_SERVICE_ROLE_KEY` (solo en el backend/servidor).
+5. Reinicia `npm run dev` para que Next.js lea los cambios.
+
+### `USE_SUPABASE`
+- **Description**: Fuerza a la aplicación a trabajar contra Supabase. Cuando es `false`, se habilita el modo JSON solo para pruebas locales.
+- **Default**: `true` en staging/producción. Cambia a `false` únicamente para pruebas locales desconectadas.
+- **Where to set it**: `.env.local`, `.env.test` (si aplica), variables de entorno en hosting.
 
 ### `NEXT_PUBLIC_SUPABASE_URL`
 - **Description**: Your Supabase project URL
@@ -67,6 +73,7 @@ Update the `.env.local` file in the project root (or create it if missing) with:
 
 ```env
 # Supabase Configuration
+USE_SUPABASE=true
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
@@ -85,7 +92,7 @@ STRIPE_CONNECT_ACCOUNT_ID=
 ## Security Notes
 
 1. Mantén tus claves reales fuera de control de versiones.
-2. **For production**, set these variables in your hosting platform:
+2. **For production**, set these variables in tu plataforma de hosting (siempre con `USE_SUPABASE=true`):
    - Vercel: Project Settings → Environment Variables
    - Netlify: Site Settings → Build & Deploy → Environment
    - Other platforms: Check their documentation
