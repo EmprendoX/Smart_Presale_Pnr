@@ -10,10 +10,32 @@ let browserClient: SupabaseClient | null = null;
  * Verifica si Supabase está habilitado y configurado correctamente
  */
 export function isSupabaseEnabled(): boolean {
+  const useSupabase = process.env.USE_SUPABASE?.toLowerCase() === 'true';
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
-  return !!(url && anonKey);
+  return !!(useSupabase && url && anonKey);
+}
+
+function getSupabaseMockClient(): SupabaseClient {
+  const disabledError = new Error('Supabase is disabled (set USE_SUPABASE=true to re-enable it).');
+
+  return {
+    auth: {
+      getSession: async () => ({ data: { session: null }, error: null }),
+      getUser: async () => ({ data: { user: null }, error: null }),
+      signInWithOtp: async () => ({ data: {}, error: disabledError as any }),
+      signInWithOAuth: async () => ({ data: {}, error: disabledError as any }),
+      updateUser: async () => ({ data: { user: null }, error: disabledError as any }),
+      signOut: async () => ({ error: null }),
+      onAuthStateChange: (callback) => {
+        callback('SIGNED_OUT', null);
+        const subscription = { unsubscribe: () => {} };
+        return { data: { subscription }, unsubscribe: () => subscription.unsubscribe() };
+      }
+    }
+    // Casting allows us to satisfy the SupabaseClient contract while keeping calls inert.
+  } as unknown as SupabaseClient;
 }
 
 function getSupabaseCredentials() {
@@ -33,7 +55,8 @@ function getSupabaseCredentials() {
 
 export const getSupabaseBrowserClient = (): SupabaseClient => {
   if (!isSupabaseEnabled()) {
-    throw new Error('Supabase is not enabled. Cannot create Supabase client. Use JSON auth mode instead.');
+    console.warn('[Supabase] Returning mock client because USE_SUPABASE is not enabled');
+    return getSupabaseMockClient();
   }
 
   if (!browserClient) {
@@ -146,9 +169,10 @@ export const createSupabaseServerClient = (
   response: NextResponse
 ): SupabaseClient => {
   if (!isSupabaseEnabled()) {
-    throw new Error('Supabase is not enabled. Cannot create Supabase server client. Use JSON auth mode instead.');
+    console.warn('[Supabase] Returning mock server client because USE_SUPABASE is not enabled');
+    return getSupabaseMockClient();
   }
-  
+
   return createMiddlewareSupabaseClient({ req: request, res: response }) as unknown as SupabaseClient;
 };
 
@@ -162,7 +186,8 @@ export const createSupabaseServerClientForReading = (
   request: NextRequest
 ): SupabaseClient => {
   if (!isSupabaseEnabled()) {
-    throw new Error('Supabase is not enabled. Cannot create Supabase server client. Use JSON auth mode instead.');
+    console.warn('[Supabase] Returning mock read-only client because USE_SUPABASE is not enabled');
+    return getSupabaseMockClient();
   }
   
   // El helper de middleware lee las cookies directamente del request
@@ -412,6 +437,9 @@ export const mapSupabaseUser = (user: User | null): AppUser | null => {
 };
 
 export const getActiveSession = async (): Promise<Session | null> => {
+  if (!isSupabaseEnabled()) {
+    return null;
+  }
   const client = getSupabaseBrowserClient();
   const { data, error } = await client.auth.getSession();
   if (error) {

@@ -48,6 +48,11 @@ const MAX_SYNC_RETRIES = 3;
 const SYNC_RETRY_DELAY = 500;
 
 export const ensureSupabaseAppUser = async (user: User, retryCount: number = 0): Promise<void> => {
+  if (process.env.USE_SUPABASE?.toLowerCase() !== 'true') {
+    console.warn('[supabase-sync] Skipping sync because USE_SUPABASE is not enabled');
+    return;
+  }
+
   const payload = buildSupabaseAppUserPayload(user);
 
   try {

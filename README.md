@@ -4,6 +4,9 @@
 
 **Stack**: Next.js 14 (App Router), TypeScript, Tailwind. **Persistencia en Supabase (Postgres + Storage)**.
 
+> ⚠️ Supabase está temporalmente apagado. Deja `USE_SUPABASE` sin definir o en `false` para usar el modo demo con datos JSON has
+ta nuevo aviso.
+
 ## Comandos
 
 ```bash
