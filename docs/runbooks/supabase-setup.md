@@ -1,5 +1,7 @@
 # Supabase setup runbook
 
+> ⚠️ **Modo simplificado**: Supabase y Stripe están deshabilitados temporalmente. No ejecutes los SQL de `supabase/` ni los scripts de `scripts/` hasta que se restablezca la integración real.
+
 Esta guía detalla los pasos obligatorios para que cualquier entorno (local, staging o producción) quede alineado con el esquema y almacenamiento que la app espera. Sigue el orden para evitar inconsistencias en KYC o en la sincronización de usuarios.
 
 ## 1. Variables de entorno mínimas

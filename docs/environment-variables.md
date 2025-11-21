@@ -2,6 +2,8 @@
 
 This document describes all environment variables needed for Smart Pre-Sale.
 
+> ⚠️ **Modo simplificado**: Supabase y Stripe están deshabilitados temporalmente. Las variables relacionadas, los scripts en `scripts/` y los SQL de `supabase/` no se usan mientras dure esta pausa.
+
 ## Required Variables (Supabase)
 
 ### Supabase Activation Checklist
