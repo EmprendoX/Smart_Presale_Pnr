@@ -19,11 +19,11 @@ import { api } from "@/lib/api";
 import { ListingType, Project, ProjectStatus, ProjectDocument } from "@/lib/types";
 import { fmtCurrency } from "@/lib/format";
 import { VideoPlayer } from "@/components/VideoPlayer";
-import { useAuth } from "@/providers/AuthProvider";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 
 type ProjectWithRound = Project & { round?: any };
 
-export default function DevPanel() {
+function DevPanelContent() {
   const t = useTranslations("dev");
   const tCommon = useTranslations("common");
   const tMessages = useTranslations("messages");
@@ -971,5 +971,13 @@ export default function DevPanel() {
         </Card>
       )}
     </div>
+  );
+}
+
+export default function DevPanel() {
+  return (
+    <AuthProvider>
+      <DevPanelContent />
+    </AuthProvider>
   );
 }

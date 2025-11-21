@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useRouter } from '@/i18n/routing';
-import { useAuth } from '@/providers/AuthProvider';
+import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 
 export const dynamic = 'force-dynamic';
 
@@ -11,7 +11,7 @@ const MAX_RETRIES = 5;
 const INITIAL_DELAY = 300;
 const RETRY_DELAY = 500;
 
-export default function VerifyPage() {
+function VerifyPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { user, loading, refreshSession } = useAuth();
@@ -267,6 +267,14 @@ export default function VerifyPage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function VerifyPage() {
+  return (
+    <AuthProvider>
+      <VerifyPageContent />
+    </AuthProvider>
   );
 }
 
