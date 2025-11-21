@@ -94,6 +94,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.log('[AuthProvider] Session loaded:', { hasSession, userId: data.session?.user?.id });
 
           setSession(data.session ?? null);
+          
+          // Sincronizar sesión inicial a cookies
+          if (data.session && typeof window !== 'undefined') {
+            try {
+              const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+              const projectRef = supabaseUrl.split('//')[1]?.split('.')[0] || 'default';
+              const cookieName = `sb-${projectRef}-auth-token`;
+              
+              const sessionData = {
+                access_token: data.session.access_token,
+                refresh_token: data.session.refresh_token,
+                expires_at: data.session.expires_at,
+                expires_in: data.session.expires_in || 3600,
+                token_type: data.session.token_type || 'bearer',
+                user: data.session.user
+              };
+              
+              const expires = data.session.expires_at 
+                ? new Date(data.session.expires_at * 1000).toUTCString()
+                : new Date(Date.now() + 3600000).toUTCString();
+              
+              document.cookie = `${cookieName}=${encodeURIComponent(JSON.stringify(sessionData))}; expires=${expires}; path=/; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+              
+              console.log('[AuthProvider] Initial session synced to cookie');
+            } catch (cookieError) {
+              console.error('[AuthProvider] Failed to sync initial session to cookie:', cookieError);
+            }
+          }
+          
           await ensureSupabaseUserRecord(data.session ?? null);
 
           if (userResult.error) {
@@ -141,25 +170,98 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       console.log('[AuthProvider] Auth state changed:', event, {
         hasSession: !!nextSession,
-        userId: nextSession?.user?.id
+        userId: nextSession?.user?.id,
+        email: nextSession?.user?.email
       });
 
+      // Manejar eventos específicos
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') {
+        console.log('[AuthProvider] User signed in or token refreshed, updating session');
+      } else if (event === 'SIGNED_OUT') {
+        console.log('[AuthProvider] User signed out, clearing session');
+        setSession(null);
+        setUser(null);
+        setLoading(false);
+        return;
+      }
+
       setSession(nextSession ?? null);
-      await ensureSupabaseUserRecord(nextSession ?? null);
+      
+      // Sincronizar sesión a cookies para que el servidor pueda leerla
+      if (nextSession && typeof window !== 'undefined') {
+        try {
+          // Obtener el project ref de la URL de Supabase
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+          const projectRef = supabaseUrl.split('//')[1]?.split('.')[0] || 'default';
+          const cookieName = `sb-${projectRef}-auth-token`;
+          
+          // Construir el objeto de sesión para la cookie
+          const sessionData = {
+            access_token: nextSession.access_token,
+            refresh_token: nextSession.refresh_token,
+            expires_at: nextSession.expires_at,
+            expires_in: nextSession.expires_in || 3600,
+            token_type: nextSession.token_type || 'bearer',
+            user: nextSession.user
+          };
+          
+          // Establecer cookie
+          const expires = nextSession.expires_at 
+            ? new Date(nextSession.expires_at * 1000).toUTCString()
+            : new Date(Date.now() + 3600000).toUTCString();
+          
+          document.cookie = `${cookieName}=${encodeURIComponent(JSON.stringify(sessionData))}; expires=${expires}; path=/; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+          
+          console.log('[AuthProvider] Session synced to cookie:', cookieName);
+        } catch (cookieError) {
+          console.error('[AuthProvider] Failed to sync session to cookie:', cookieError);
+        }
+      } else if (!nextSession && typeof window !== 'undefined') {
+        // Eliminar cookies cuando no hay sesión
+        try {
+          const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+          const projectRef = supabaseUrl.split('//')[1]?.split('.')[0] || 'default';
+          const cookieName = `sb-${projectRef}-auth-token`;
+          document.cookie = `${cookieName}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+        } catch (e) {
+          // Ignorar errores
+        }
+      }
+      
+      // Sincronizar usuario en Supabase si hay sesión
+      if (nextSession?.user) {
+        try {
+          await ensureSupabaseUserRecord(nextSession);
+        } catch (syncError) {
+          console.error('[AuthProvider] Failed to sync user record on auth change:', syncError);
+          // Continuar aunque falle la sincronización
+        }
+      }
 
       // Obtener usuario completo para asegurar que tenemos los datos más recientes
       if (nextSession) {
         try {
           const { data: userData, error: userError } = await client.auth.getUser();
           if (!userError && userData?.user) {
+            console.log('[AuthProvider] User data fetched successfully:', {
+              userId: userData.user.id,
+              email: userData.user.email
+            });
             // Mapear según el modo
             if (isSupabaseEnabled()) {
-              setUser(mapSupabaseUser(userData.user));
+              const mappedUser = mapSupabaseUser(userData.user);
+              setUser(mappedUser);
+              console.log('[AuthProvider] Mapped Supabase user:', {
+                id: mappedUser?.id,
+                role: mappedUser?.role,
+                kycStatus: mappedUser?.kycStatus
+              });
             } else {
               setUser(mapJsonUser(userData.user.id));
             }
           } else {
-            // Mapear según el modo
+            console.warn('[AuthProvider] Error fetching user, using session user:', userError?.message);
+            // Mapear según el modo usando el usuario de la sesión
             if (isSupabaseEnabled()) {
               setUser(mapSupabaseUser(nextSession.user));
             } else {
@@ -168,7 +270,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           }
         } catch (error: any) {
           console.error('[AuthProvider] Error fetching user on auth change:', error);
-          // Mapear según el modo
+          // Mapear según el modo usando el usuario de la sesión como fallback
           if (isSupabaseEnabled()) {
             setUser(mapSupabaseUser(nextSession.user));
           } else {
@@ -237,33 +339,99 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           console.warn('[AuthProvider] Cannot refresh session: client not initialized');
           return;
         }
-        const [{ data, error }, userResult] = await Promise.all([
-          client.auth.getSession(),
-          client.auth.getUser()
-        ]);
+        
+        console.log('[AuthProvider] Refreshing session...');
+        
+        try {
+          const [{ data, error }, userResult] = await Promise.all([
+            client.auth.getSession(),
+            client.auth.getUser()
+          ]);
 
-        if (error) {
-          console.error('[AuthProvider] Error refreshing session:', error.message);
-          return;
-        }
+          if (error) {
+            console.error('[AuthProvider] Error refreshing session:', {
+              message: error.message,
+              status: error.status,
+              name: error.name
+            });
+            setSession(null);
+            setUser(null);
+            return;
+          }
 
-        setSession(data.session ?? null);
-        await ensureSupabaseUserRecord(data.session ?? null);
-        if (userResult.error) {
-          console.error('[AuthProvider] Error refreshing user:', userResult.error.message);
-          // Mapear según el modo
-          if (isSupabaseEnabled()) {
-            setUser(mapSupabaseUser(data.session?.user ?? null));
-          } else {
-            setUser(data.session?.user ? mapJsonUser(data.session.user.id) : null);
+          const hasSession = !!data.session;
+          console.log('[AuthProvider] Session refreshed:', {
+            hasSession,
+            userId: data.session?.user?.id,
+            email: data.session?.user?.email
+          });
+
+          setSession(data.session ?? null);
+          
+          // Sincronizar sesión a cookies cuando se refresca
+          if (data.session && typeof window !== 'undefined') {
+            try {
+              const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
+              const projectRef = supabaseUrl.split('//')[1]?.split('.')[0] || 'default';
+              const cookieName = `sb-${projectRef}-auth-token`;
+              
+              const sessionData = {
+                access_token: data.session.access_token,
+                refresh_token: data.session.refresh_token,
+                expires_at: data.session.expires_at,
+                expires_in: data.session.expires_in || 3600,
+                token_type: data.session.token_type || 'bearer',
+                user: data.session.user
+              };
+              
+              const expires = data.session.expires_at 
+                ? new Date(data.session.expires_at * 1000).toUTCString()
+                : new Date(Date.now() + 3600000).toUTCString();
+              
+              document.cookie = `${cookieName}=${encodeURIComponent(JSON.stringify(sessionData))}; expires=${expires}; path=/; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+              
+              console.log('[AuthProvider] Session refreshed and synced to cookie');
+            } catch (cookieError) {
+              console.error('[AuthProvider] Failed to sync refreshed session to cookie:', cookieError);
+            }
           }
-        } else {
-          // Mapear según el modo
-          if (isSupabaseEnabled()) {
-            setUser(mapSupabaseUser(userResult.data.user ?? null));
-          } else {
-            setUser(userResult.data.user ? mapJsonUser(userResult.data.user.id) : null);
+          
+          // Sincronizar usuario en Supabase si hay sesión
+          if (data.session?.user) {
+            try {
+              await ensureSupabaseUserRecord(data.session);
+            } catch (syncError) {
+              console.error('[AuthProvider] Failed to sync user record on refresh:', syncError);
+              // Continuar aunque falle la sincronización
+            }
           }
+
+          if (userResult.error) {
+            console.warn('[AuthProvider] Error refreshing user, using session user:', userResult.error.message);
+            // Mapear según el modo usando el usuario de la sesión
+            if (isSupabaseEnabled()) {
+              setUser(mapSupabaseUser(data.session?.user ?? null));
+            } else {
+              setUser(data.session?.user ? mapJsonUser(data.session.user.id) : null);
+            }
+          } else {
+            // Mapear según el modo usando el usuario completo
+            if (isSupabaseEnabled()) {
+              const mappedUser = mapSupabaseUser(userResult.data.user ?? null);
+              setUser(mappedUser);
+              console.log('[AuthProvider] User refreshed:', {
+                id: mappedUser?.id,
+                role: mappedUser?.role,
+                kycStatus: mappedUser?.kycStatus
+              });
+            } else {
+              setUser(userResult.data.user ? mapJsonUser(userResult.data.user.id) : null);
+            }
+          }
+        } catch (error: any) {
+          console.error('[AuthProvider] Unexpected error refreshing session:', error);
+          setSession(null);
+          setUser(null);
         }
       }
     }),

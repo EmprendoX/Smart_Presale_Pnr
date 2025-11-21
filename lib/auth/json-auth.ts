@@ -10,7 +10,7 @@ const DEMO_USERS: Record<string, AppUser> = {
     id: "u_buyer_1",
     email: "ana@example.com",
     role: "buyer",
-    kycStatus: "basic",
+    kycStatus: "complete",
     fullName: "Ana Compradora",
     metadata: {}
   },
@@ -18,7 +18,7 @@ const DEMO_USERS: Record<string, AppUser> = {
     id: "u_dev_1",
     email: "carlos@example.com",
     role: "developer",
-    kycStatus: "verified",
+    kycStatus: "complete",
     fullName: "Carlos Dev",
     metadata: {}
   },
@@ -26,7 +26,7 @@ const DEMO_USERS: Record<string, AppUser> = {
     id: "u_admin_1",
     email: "pat@example.com",
     role: "admin",
-    kycStatus: "verified",
+    kycStatus: "complete",
     fullName: "Pat Admin",
     metadata: {}
   }

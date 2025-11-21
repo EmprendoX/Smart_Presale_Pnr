@@ -2,10 +2,6 @@ import { Reservation, Round, RoundStatus } from "./types";
 
 export const isExpired = (round: Round) => new Date(round.deadlineAt).getTime() <= Date.now();
 
-export const kycRequired = (round: Round, slots: number) => {
-  // Política simple: si depósito por slot >= 1000 USD (o equivalente), exigir KYC ligero.
-  return round.depositAmount >= 1000;
-};
 
 export const computeProgress = (round: Round, reservations: Reservation[]) => {
   const confirmed = reservations.filter(r => r.status === "confirmed" || r.status === "assigned");

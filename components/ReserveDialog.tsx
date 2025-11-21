@@ -21,11 +21,9 @@ export default function ReserveDialog({ project, round }: { project: Project; ro
   const [loading, setLoading] = useState(false);
   const { show } = useToast();
 
-  const kycNeeded = round.depositAmount >= 1000;
   const [fullName, setFullName] = useState("");
   const [country, setCountry] = useState("MX");
   const [phone, setPhone] = useState("");
-  const [idNumber, setIdNumber] = useState("");
 
   const disabled = useMemo(() => {
     if (!user) return true;
@@ -40,15 +38,46 @@ export default function ReserveDialog({ project, round }: { project: Project; ro
       return;
     }
 
+    // Validar campos requeridos
+    if (!fullName || !phone || !country) {
+      show(tMessages("error"), "Por favor completa todos los campos requeridos");
+      return;
+    }
+
     try {
       setLoading(true);
+      
+      console.log('[ReserveDialog] Attempting to create reservation...', {
+        userId: user.id,
+        roundId: round.id,
+        slots,
+        hasCookies: typeof document !== 'undefined' && document.cookie.includes('sb-')
+      });
+      
       const res = await api.createReservation({
         roundId: round.id,
         slots,
-        kyc: { fullName, country, phone, idNumber: kycNeeded ? idNumber : undefined }
+        kyc: { fullName, country, phone }
       });
 
-      if (!res.ok) throw new Error(res.error);
+      if (!res.ok) {
+        // Si el error es de autenticación, mostrar mensaje más claro
+        if (res.error.includes('sesión') || res.error.includes('autenticación') || res.error.includes('login')) {
+          show(
+            "Error de autenticación", 
+            "Tu sesión ha expirado. Por favor, recarga la página e intenta nuevamente."
+          );
+          // Opcional: redirigir a sign-up
+          setTimeout(() => {
+            if (typeof window !== 'undefined') {
+              const locale = window.location.pathname.split('/')[1] || 'es';
+              window.location.href = `/${locale}/sign-up`;
+            }
+          }, 2000);
+          return;
+        }
+        throw new Error(res.error);
+      }
 
       const ok = await api.checkout(res.data.id);
       if (!ok.ok) throw new Error(ok.error);
@@ -71,7 +100,15 @@ export default function ReserveDialog({ project, round }: { project: Project; ro
       show(tMessages(titleKey), tMessages(descriptionKey));
       setOpen(false);
     } catch (e: any) {
-      show(e.message || tMessages("error"), tMessages("error"));
+      console.error('[ReserveDialog] Error creating reservation:', e);
+      
+      // Mensaje de error más claro para el usuario
+      let errorMessage = e.message || tMessages("error");
+      if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+        errorMessage = "Tu sesión ha expirado. Por favor, recarga la página e intenta nuevamente.";
+      }
+      
+      show(errorMessage, tMessages("error"));
     } finally {
       setLoading(false);
     }
@@ -132,13 +169,6 @@ export default function ReserveDialog({ project, round }: { project: Project; ro
               <Input value={phone} onChange={e => setPhone(e.target.value)} />
             </div>
           </div>
-          {kycNeeded && (
-            <div>
-              <label className="text-sm font-medium">{t("idNumber")}</label>
-              <Input placeholder={t("idPlaceholder")} value={idNumber} onChange={e => setIdNumber(e.target.value)} />
-              <p className="text-xs text-neutral-500 mt-1">{t("kycRequired")}</p>
-            </div>
-          )}
           <div className="flex items-center justify-end gap-2">
             <Button variant="secondary" onClick={() => setOpen(false)}>{tCommon("cancel")}</Button>
             <Button onClick={submit} disabled={disabled || loading}>

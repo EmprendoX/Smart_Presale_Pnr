@@ -119,7 +119,7 @@ export function Navbar() {
               <div className="text-sm text-[color:var(--text-muted)]">
                 <p className="font-medium text-[color:var(--text-strong)]">{user.fullName || user.email}</p>
                 <p className="text-xs capitalize text-[color:var(--text-muted)]">
-                  {t(`roles.${user.role}` as any)} · {t(`kyc.${user.kycStatus}` as any)}
+                  {t(`roles.${user.role}` as any)}
                 </p>
               </div>
               <Button variant="secondary" onClick={() => signOut().catch(error => console.error('Error al cerrar sesión:', error))}>
@@ -131,9 +131,6 @@ export function Navbar() {
               <Link href="/sign-up">{t("signIn")}</Link>
             </Button>
           )}
-          <Button variant="secondary" asChild>
-            <a href="https://example.com/how-it-works" target="_blank" rel="noreferrer">{t("howItWorks")}</a>
-          </Button>
         </div>
       </div>
     </header>

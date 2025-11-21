@@ -38,7 +38,7 @@ export const api = {
 
   // Reservas
   createReservation: async (input: {
-    roundId: string; slots: number; kyc: { fullName: string; country: string; phone: string; idNumber?: string }
+    roundId: string; slots: number; kyc: { fullName: string; country: string; phone: string }
   }): Promise<ApiResult<Reservation>> =>
     fetch("/api/reservations", { 
       method: "POST", 

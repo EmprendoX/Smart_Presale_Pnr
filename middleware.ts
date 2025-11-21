@@ -51,7 +51,8 @@ const ROLE_HOME: Record<string, string> = {
 };
 
 const PROTECTED_ROUTES = ['/dashboard', '/dev', '/admin'];
-const AUTH_ROUTES = ['/sign-up', '/kyc'];
+const AUTH_ROUTES = ['/sign-up'];
+const PUBLIC_ROUTES = ['/', '/projects', '/p'];
 
 const { locales, defaultLocale } = routing;
 
@@ -132,39 +133,42 @@ export default async function middleware(request: NextRequest) {
       }
     }
 
-    // Obtener usuario autenticado (funciona en ambos modos)
-    const user = await getAuthenticatedUser(request, response);
+    // Verificar si la ruta es pública (accesible sin autenticación)
+    const isPublicRoute = PUBLIC_ROUTES.some(route => relativePath === route || relativePath.startsWith(route + '/'));
+    const isAuthRoute = AUTH_ROUTES.includes(relativePath);
+    const isProtectedRoute = PROTECTED_ROUTES.some(route => relativePath.startsWith(route));
 
-    if (!user) {
-      if (PROTECTED_ROUTES.some(route => relativePath.startsWith(route)) && !AUTH_ROUTES.includes(relativePath)) {
-        return NextResponse.redirect(new URL(`/${locale}/sign-up`, request.url));
+    // Obtener usuario autenticado solo si es necesario (rutas protegidas o auth)
+    let user: AppUser | null = null;
+    if (isProtectedRoute || isAuthRoute || relativePath === '/') {
+      try {
+        user = await getAuthenticatedUser(request, response);
+      } catch (error) {
+        console.error('[middleware] Error getting authenticated user:', error);
+        // En caso de error, tratar como no autenticado
+        user = null;
       }
-      return response;
     }
 
-    const needsPersonalData = user.kycStatus === 'none';
-    const needsDocuments = user.kycStatus === 'basic';
-    const requiresKyc = needsPersonalData || needsDocuments;
-
-    // Permitir acceso a KYC si el usuario está en esa ruta, incluso si tiene kycStatus 'verified'
-    // Esto permite que usuarios puedan completar o revisar su KYC si lo desean
-    if (requiresKyc && !relativePath.startsWith('/kyc')) {
-      const target = needsDocuments ? `/${locale}/kyc?step=documents` : `/${locale}/kyc`;
-      return NextResponse.redirect(new URL(target, request.url));
+    // Si no hay usuario y la ruta es protegida, redirigir a sign-up
+    if (!user && isProtectedRoute) {
+      return NextResponse.redirect(new URL(`/${locale}/sign-up`, request.url));
     }
-    
-    // Si el usuario tiene kycStatus 'verified' y está en /kyc, permitir acceso (puede querer revisar)
-    // Pero no redirigir automáticamente a KYC si ya está verificado
 
-    if (AUTH_ROUTES.includes(relativePath) && !requiresKyc) {
+    // Si hay usuario y está en ruta de autenticación, redirigir al dashboard
+    if (user && isAuthRoute) {
       const destination = ROLE_HOME[user.role] ?? '/dashboard';
       return NextResponse.redirect(new URL(`/${locale}${destination}`, request.url));
     }
 
-    if (relativePath === '/' && !requiresKyc) {
+    // Si hay usuario y está en la página principal, redirigir al dashboard
+    if (user && relativePath === '/') {
       const destination = ROLE_HOME[user.role] ?? '/dashboard';
       return NextResponse.redirect(new URL(`/${locale}${destination}`, request.url));
     }
+
+    // Para todas las demás rutas (públicas o sin usuario), permitir acceso
+    return response;
   } catch (error) {
     console.error('[middleware] Error handling auth redirect:', error);
     // En caso de error, permitir que la request continúe
@@ -305,6 +309,11 @@ function persistTenantContext(
 }
 
 export const config = {
-  matcher: ['/', '/(es|en)/:path*', '/((?!api|_next|_vercel|.*\\..*).*)']
+  matcher: [
+    '/',
+    '/(es|en)/:path*',
+    // Excluir rutas de API, auth, archivos estáticos y Next.js internals
+    '/((?!api|_next|_vercel|auth|.*\\..*).*)'
+  ]
 };
 

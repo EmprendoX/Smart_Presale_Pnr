@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient, mapSupabaseUser, isSupabaseEnabled, type AppUser } from './supabase';
+import { createSupabaseServerClient, createSupabaseServerClientForReading, getSessionFromCookies, mapSupabaseUser, isSupabaseEnabled, type AppUser } from './supabase';
 import { mapJsonUser } from './json-auth';
 import { Role } from '@/lib/types';
 import { db } from '@/lib/config';
@@ -57,16 +57,68 @@ export async function getAuthenticatedUser(
     }
     
     // Modo Supabase: usar Supabase Auth
-    // Crear respuesta temporal si no se proporciona
-    const tempResponse = response || new NextResponse();
-    const supabase = createSupabaseServerClient(request, tempResponse);
+    // ESTRATEGIA: Usar el helper de Supabase directamente (es el método más confiable)
+    // El helper maneja automáticamente la lectura de cookies en el formato correcto
     
-    const {
-      data: { session },
-      error: sessionError
-    } = await supabase.auth.getSession();
+    let session = null;
+    let sessionError = null;
+    
+    try {
+      // Crear cliente de Supabase usando el helper
+      // El helper lee las cookies automáticamente del request
+      let supabase;
+      if (response) {
+        // Si hay response, usar el método normal (útil para establecer cookies)
+        supabase = createSupabaseServerClient(request, response);
+      } else {
+        // Si no hay response, usar el método de solo lectura
+        supabase = createSupabaseServerClientForReading(request);
+      }
+      
+      // Obtener sesión usando el helper (método más confiable)
+      const sessionResult = await supabase.auth.getSession();
+      sessionError = sessionResult.error;
+      session = sessionResult.data.session;
+      
+      if (session && session.user) {
+        console.log('[getAuthenticatedUser] ✅ Session found using Supabase helper');
+      } else if (sessionError) {
+        console.warn('[getAuthenticatedUser] Helper method error:', {
+          message: sessionError.message,
+          status: sessionError.status
+        });
+      }
+    } catch (error: any) {
+      console.error('[getAuthenticatedUser] Helper method failed:', error.message);
+      sessionError = error;
+    }
+    
+    // Si el helper falló, intentar método directo como fallback
+    if (!session && !sessionError) {
+      try {
+        session = await getSessionFromCookies(request);
+        if (session && session.user) {
+          console.log('[getAuthenticatedUser] ✅ Session found using direct cookie method (fallback)');
+        }
+      } catch (error: any) {
+        console.warn('[getAuthenticatedUser] Direct cookie method also failed:', error.message);
+      }
+    }
 
-    if (sessionError || !session || !session.user) {
+    // Si ambos métodos fallaron, retornar null
+    if (!session || !session.user) {
+      if (process.env.NODE_ENV === 'development') {
+        const cookieHeader = request.headers.get('cookie') || '';
+        const cookieNames = cookieHeader.split(';').map(c => c.trim().split('=')[0]).filter(Boolean);
+        console.log('[getAuthenticatedUser] ❌ No session found after all methods', {
+          hasCookies: cookieHeader.includes('sb-'),
+          cookieHeaderLength: cookieHeader.length,
+          cookieNames: cookieNames,
+          supabaseCookies: cookieNames.filter(n => n.includes('sb-')),
+          triedHelperMethod: true,
+          triedDirectMethod: true
+        });
+      }
       return null;
     }
 
@@ -86,7 +138,7 @@ export async function getAuthenticatedUser(
       try {
         // Obtener rol de user_metadata o usar 'buyer' por defecto
         const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'buyer';
-        const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'basic' | 'verified') ?? 'none';
+        const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
         
         // Crear usuario en app_users
         appUser = await db.upsertUser({
@@ -102,7 +154,7 @@ export async function getAuthenticatedUser(
         console.warn('[getAuthenticatedUser] No se pudo crear usuario en app_users, usando user_metadata:', error);
         // Si falla, usar user_metadata directamente
         const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'buyer';
-        const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'basic' | 'verified') ?? 'none';
+        const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
         
         return {
           id: userId,

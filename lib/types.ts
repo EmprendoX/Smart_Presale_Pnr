@@ -2,7 +2,7 @@ export type Role = "buyer" | "developer" | "admin";
 
 export type Currency = "USD" | "MXN";
 
-export type KycStatus = "none" | "basic" | "verified";
+export type KycStatus = "none" | "complete";
 
 export type User = {
   id: string;

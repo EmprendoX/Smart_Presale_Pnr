@@ -44,28 +44,71 @@ export const buildSupabaseAppUserPayload = (user: User): AppUserPayload => {
   };
 };
 
-export const ensureSupabaseAppUser = async (user: User): Promise<void> => {
+const MAX_SYNC_RETRIES = 3;
+const SYNC_RETRY_DELAY = 500;
+
+export const ensureSupabaseAppUser = async (user: User, retryCount: number = 0): Promise<void> => {
   const payload = buildSupabaseAppUserPayload(user);
 
-  const response = await fetch('/api/users', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-  });
+  try {
+    console.log(`[supabase-sync] Syncing user ${user.id} (attempt ${retryCount + 1}/${MAX_SYNC_RETRIES})...`);
 
-  if (!response.ok) {
-    let errorMessage = response.statusText || 'Unknown error';
-    try {
-      const body = await response.json();
-      if (body?.error) {
-        errorMessage = body.error;
+    const response = await fetch('/api/users', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      credentials: 'include', // Asegurar que se envíen las cookies
+      body: JSON.stringify(payload)
+    });
+
+    if (!response.ok) {
+      let errorMessage = response.statusText || 'Unknown error';
+      let statusCode = response.status;
+      
+      try {
+        const body = await response.json();
+        if (body?.error) {
+          errorMessage = body.error;
+        }
+      } catch (error) {
+        // Ignorar error al parsear JSON y usar statusText
       }
-    } catch (error) {
-      // Ignorar error al parsear JSON y usar statusText
+
+      // Si es un error 409 (conflict), el usuario ya existe, no es un error crítico
+      if (statusCode === 409) {
+        console.log('[supabase-sync] User already exists in database, skipping sync');
+        return;
+      }
+
+      // Si es un error 401 o 403, no tiene sentido reintentar
+      if (statusCode === 401 || statusCode === 403) {
+        console.error(`[supabase-sync] Authentication error (${statusCode}), not retrying`);
+        throw new Error(`[Supabase] Authentication failed: ${errorMessage}`);
+      }
+
+      // Reintentar si no hemos alcanzado el máximo
+      if (retryCount < MAX_SYNC_RETRIES - 1) {
+        console.warn(`[supabase-sync] Sync failed (${statusCode}), retrying in ${SYNC_RETRY_DELAY}ms...`);
+        await new Promise(resolve => setTimeout(resolve, SYNC_RETRY_DELAY));
+        return ensureSupabaseAppUser(user, retryCount + 1);
+      }
+
+      throw new Error(`[Supabase] Failed to synchronize user after ${MAX_SYNC_RETRIES} attempts: ${errorMessage}`);
     }
 
-    throw new Error(`[Supabase] Failed to synchronize user: ${errorMessage}`);
+    console.log(`[supabase-sync] User ${user.id} synchronized successfully`);
+  } catch (error: any) {
+    // Si es un error de red, reintentar
+    if (error.name === 'TypeError' && error.message.includes('fetch')) {
+      if (retryCount < MAX_SYNC_RETRIES - 1) {
+        console.warn(`[supabase-sync] Network error, retrying in ${SYNC_RETRY_DELAY}ms...`);
+        await new Promise(resolve => setTimeout(resolve, SYNC_RETRY_DELAY));
+        return ensureSupabaseAppUser(user, retryCount + 1);
+      }
+    }
+    
+    // Re-lanzar el error si ya hemos intentado todas las veces
+    throw error;
   }
 };
