@@ -2,8 +2,7 @@ import createIntlMiddleware from 'next-intl/middleware';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 import { routing } from './i18n/routing';
-import { createSupabaseServerClient, mapSupabaseUser, isSupabaseEnabled } from '@/lib/auth/supabase';
-import { mapJsonUser, type AppUser } from '@/lib/auth/json-auth';
+import { createSupabaseServerClient, isSupabaseEnabled } from '@/lib/auth/supabase';
 
 type SupabaseTenant = {
   id: string;
@@ -44,79 +43,10 @@ const TENANT_SLUG_COOKIE = 'tenant_slug';
 
 const intlMiddleware = createIntlMiddleware(routing);
 
-const ROLE_HOME: Record<string, string> = {
-  buyer: '/dashboard',
-  developer: '/dev',
-  admin: '/admin'
-};
-
-const PROTECTED_ROUTES = ['/dashboard', '/dev', '/admin'];
-const AUTH_ROUTES = ['/sign-up'];
-const PUBLIC_ROUTES = ['/', '/projects', '/p'];
-
-const { locales, defaultLocale } = routing;
-
-function extractLocaleAndPath(pathname: string) {
-  const segments = pathname.split('/').filter(Boolean);
-  const maybeLocale = segments[0];
-  const locale = locales.includes(maybeLocale as any) ? (maybeLocale as string) : defaultLocale;
-  const pathSegments = locales.includes(maybeLocale as any) ? segments.slice(1) : segments;
-  const relativePath = `/${pathSegments.join('/')}`.replace(/\/$/, '') || '/';
-  return { locale, relativePath };
-}
-
-/**
- * Obtiene el usuario autenticado según el modo (Supabase o JSON)
- */
-async function getAuthenticatedUser(request: NextRequest, response: NextResponse): Promise<AppUser | null> {
-  if (isSupabaseEnabled()) {
-    try {
-      const supabase = createSupabaseServerClient(request, response);
-      const {
-        data: { session }
-      } = await supabase.auth.getSession();
-      return mapSupabaseUser(session?.user ?? null);
-    } catch (error) {
-      console.error('[middleware] Error getting Supabase session:', error);
-      return null;
-    }
-  } else {
-    // Modo JSON: leer sesión desde cookie
-    try {
-      const sessionCookie = request.cookies.get('sps_user');
-      if (!sessionCookie?.value) {
-        return null;
-      }
-      
-      let userId: string;
-      
-      // Intentar primero con decodeURIComponent (formato nuevo)
-      try {
-        userId = decodeURIComponent(sessionCookie.value);
-      } catch {
-        // Si falla, intentar con JSON.parse (formato legacy)
-        try {
-          userId = JSON.parse(sessionCookie.value);
-        } catch {
-          // Si ambos fallan, usar el valor directamente
-          userId = sessionCookie.value;
-        }
-      }
-      
-      return mapJsonUser(userId);
-    } catch (error) {
-      console.error('[middleware] Error reading JSON session:', error);
-      return null;
-    }
-  }
-}
-
 export default async function middleware(request: NextRequest) {
   const response = intlMiddleware(request);
 
   try {
-    const { locale, relativePath } = extractLocaleAndPath(request.nextUrl.pathname);
-
     // Resolver tenant (solo si Supabase está habilitado)
     if (isSupabaseEnabled()) {
       try {
@@ -132,43 +62,6 @@ export default async function middleware(request: NextRequest) {
         // No bloquear la request si falla el tenant
       }
     }
-
-    // Verificar si la ruta es pública (accesible sin autenticación)
-    const isPublicRoute = PUBLIC_ROUTES.some(route => relativePath === route || relativePath.startsWith(route + '/'));
-    const isAuthRoute = AUTH_ROUTES.includes(relativePath);
-    const isProtectedRoute = PROTECTED_ROUTES.some(route => relativePath.startsWith(route));
-
-    // Obtener usuario autenticado solo si es necesario (rutas protegidas o auth)
-    let user: AppUser | null = null;
-    if (isProtectedRoute || isAuthRoute || relativePath === '/') {
-      try {
-        user = await getAuthenticatedUser(request, response);
-      } catch (error) {
-        console.error('[middleware] Error getting authenticated user:', error);
-        // En caso de error, tratar como no autenticado
-        user = null;
-      }
-    }
-
-    // Si no hay usuario y la ruta es protegida, redirigir a sign-up
-    if (!user && isProtectedRoute) {
-      return NextResponse.redirect(new URL(`/${locale}/sign-up`, request.url));
-    }
-
-    // Si hay usuario y está en ruta de autenticación, redirigir al dashboard
-    if (user && isAuthRoute) {
-      const destination = ROLE_HOME[user.role] ?? '/dashboard';
-      return NextResponse.redirect(new URL(`/${locale}${destination}`, request.url));
-    }
-
-    // Si hay usuario y está en la página principal, redirigir al dashboard
-    if (user && relativePath === '/') {
-      const destination = ROLE_HOME[user.role] ?? '/dashboard';
-      return NextResponse.redirect(new URL(`/${locale}${destination}`, request.url));
-    }
-
-    // Para todas las demás rutas (públicas o sin usuario), permitir acceso
-    return response;
   } catch (error) {
     console.error('[middleware] Error handling auth redirect:', error);
     // En caso de error, permitir que la request continúe
