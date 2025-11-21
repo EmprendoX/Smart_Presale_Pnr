@@ -19,7 +19,7 @@ import {
   ListingType
 } from "@/lib/types";
 import { api } from "@/lib/api";
-import { useAuth } from "@/providers/AuthProvider";
+import { AuthProvider, useAuth } from "@/providers/AuthProvider";
 
 const automationTriggers: AutomationWorkflow["trigger"][] = [
   "new_lead",
@@ -75,7 +75,7 @@ type NewAgentForm = {
   handoffEmail: string;
 };
 
-export default function Admin() {
+function AdminContent() {
   const t = useTranslations("admin");
   const tCommon = useTranslations("common");
   const tMessages = useTranslations("messages");
@@ -985,5 +985,13 @@ export default function Admin() {
         ]}
       />
     </div>
+  );
+}
+
+export default function Admin() {
+  return (
+    <AuthProvider>
+      <AdminContent />
+    </AuthProvider>
   );
 }

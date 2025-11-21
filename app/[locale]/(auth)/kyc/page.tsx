@@ -2,9 +2,9 @@
 
 import { useEffect } from 'react';
 import { useRouter } from '@/i18n/routing';
-import { useAuth } from '@/providers/AuthProvider';
+import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 
-export default function KycPage() {
+function KycContent() {
   const { user } = useAuth();
   const router = useRouter();
 
@@ -29,5 +29,13 @@ export default function KycPage() {
         <p className="text-neutral-600">Redirigiendo...</p>
       </div>
     </div>
+  );
+}
+
+export default function KycPage() {
+  return (
+    <AuthProvider>
+      <KycContent />
+    </AuthProvider>
   );
 }

@@ -5,9 +5,9 @@ import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
-import { useAuth } from '@/providers/AuthProvider';
+import { AuthProvider, useAuth } from '@/providers/AuthProvider';
 
-export default function SignUpPage() {
+function SignUpContent() {
   const t = useTranslations('auth.signUp');
   const locale = useLocale();
   const router = useRouter();
@@ -109,5 +109,13 @@ export default function SignUpPage() {
         )}
       </section>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <AuthProvider>
+      <SignUpContent />
+    </AuthProvider>
   );
 }

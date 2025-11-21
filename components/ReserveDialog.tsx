@@ -9,13 +9,11 @@ import { Select } from "./ui/Select";
 import { useToast } from "./ui/Toast";
 import { api } from "@/lib/api";
 import { Project, Round } from "@/lib/types";
-import { useAuth } from "@/providers/AuthProvider";
 
 export default function ReserveDialog({ project, round }: { project: Project; round: Round }) {
   const t = useTranslations("reserve");
   const tCommon = useTranslations("common");
   const tMessages = useTranslations("messages");
-  const { user, loading: authLoading } = useAuth();
   const [open, setOpen] = useState(false);
   const [slots, setSlots] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -26,18 +24,10 @@ export default function ReserveDialog({ project, round }: { project: Project; ro
   const [phone, setPhone] = useState("");
 
   const disabled = useMemo(() => {
-    if (!user) return true;
     return slots < 1 || slots > round.slotsPerPerson;
-  }, [slots, round.slotsPerPerson, user]);
-
-  const canReserve = user && !authLoading;
+  }, [slots, round.slotsPerPerson]);
 
   const submit = async () => {
-    if (!user) {
-      show(tMessages("error"), "Debes iniciar sesión para reservar propiedades");
-      return;
-    }
-
     // Validar campos requeridos
     if (!fullName || !phone || !country) {
       show(tMessages("error"), "Por favor completa todos los campos requeridos");
@@ -48,7 +38,6 @@ export default function ReserveDialog({ project, round }: { project: Project; ro
       setLoading(true);
       
       console.log('[ReserveDialog] Attempting to create reservation...', {
-        userId: user.id,
         roundId: round.id,
         slots,
         hasCookies: typeof document !== 'undefined' && document.cookie.includes('sb-')
@@ -114,34 +103,9 @@ export default function ReserveDialog({ project, round }: { project: Project; ro
     }
   };
 
-  // Si está cargando, mostrar botón deshabilitado
-  if (authLoading) {
-    return (
-      <Button disabled>
-        {t("button")}
-      </Button>
-    );
-  }
-
-  // Si no hay usuario, mostrar botón que redirige a sign-up
-  if (!user) {
-    return (
-      <Button 
-        onClick={() => {
-          if (typeof window !== 'undefined') {
-            const locale = window.location.pathname.split('/')[1] || 'es';
-            window.location.href = `/${locale}/sign-up`;
-          }
-        }}
-      >
-        {t("button")}
-      </Button>
-    );
-  }
-
   return (
     <>
-      <Button onClick={() => setOpen(true)} disabled={authLoading}>{t("button")}</Button>
+      <Button onClick={() => setOpen(true)}>{t("button")}</Button>
       <Modal open={open} title={t("title")} onClose={() => setOpen(false)}>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-3">

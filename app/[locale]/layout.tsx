@@ -7,7 +7,6 @@ import { routing } from '@/i18n/routing';
 import { Navbar } from '@/components/Navbar';
 import { ToastProvider } from '@/components/ui/Toast';
 import { ThemeProvider } from '@/components/ThemeProvider';
-import { AuthProvider } from '@/providers/AuthProvider';
 import { TenantProvider } from '@/providers/TenantProvider';
 import type { Tenant, TenantSettings } from '@/lib/types';
 import { buildCssVariables, resolveTenantTheme } from '@/lib/tenant/theme';
@@ -94,12 +93,10 @@ export default async function LocaleLayout({
         <NextIntlClientProvider locale={locale} messages={messages}>
           <ThemeProvider>
             <TenantProvider value={tenantContext}>
-              <AuthProvider>
-                <ToastProvider>
-                  <Navbar />
-                  <main className="container py-8 overflow-x-hidden min-w-0">{children}</main>
-                </ToastProvider>
-              </AuthProvider>
+              <ToastProvider>
+                <Navbar />
+                <main className="container py-8 overflow-x-hidden min-w-0">{children}</main>
+              </ToastProvider>
             </TenantProvider>
           </ThemeProvider>
         </NextIntlClientProvider>

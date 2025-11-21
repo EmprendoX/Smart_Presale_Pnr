@@ -5,27 +5,11 @@ import { useLocale, useTranslations } from "next-intl";
 import { useEffect, useState } from "react";
 import { Select } from "./ui/Select";
 import { Button } from "./ui/Button";
-import { useAuth } from "@/providers/AuthProvider";
 import { useTenant } from "@/providers/TenantProvider";
 
 export function Navbar() {
   const [mounted, setMounted] = useState(false);
-  const [loadingTimeout, setLoadingTimeout] = useState(false);
-  const { user, loading, signOut } = useAuth();
   const { tenant, settings } = useTenant();
-
-  // Timeout de seguridad: si después de 2 segundos aún está cargando, mostrar botón
-  useEffect(() => {
-    if (loading) {
-      const timeout = setTimeout(() => {
-        console.warn('[Navbar] Loading timeout reached, showing sign in button anyway');
-        setLoadingTimeout(true);
-      }, 2000);
-      return () => clearTimeout(timeout);
-    } else {
-      setLoadingTimeout(false);
-    }
-  }, [loading]);
 
   const brandName = tenant?.name ?? "Smart Pre-Sale";
   const brandLogo = settings?.logoUrl ?? settings?.darkLogoUrl ?? settings?.squareLogoUrl ?? null;
@@ -101,10 +85,8 @@ export function Navbar() {
           </Link>
           <nav className="hidden md:flex items-center gap-4 text-sm flex-shrink-0">
             <Link href="/" className="hover:underline whitespace-nowrap">{t("projects")}</Link>
-            <Link href="/dashboard" className="hover:underline whitespace-nowrap">{t("myReservations")}</Link>
-            <Link href="/dev" className="hover:underline whitespace-nowrap">{t("devPanel")}</Link>
             <Link href="/community" className="hover:underline whitespace-nowrap">{t("communities")}</Link>
-            <Link href="/admin" className="hover:underline whitespace-nowrap">{t("admin")}</Link>
+            <Link href="/p/how-it-works" className="hover:underline whitespace-nowrap">{t("howItWorks")}</Link>
           </nav>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
@@ -112,25 +94,9 @@ export function Navbar() {
             <option value="es">{t("spanish")}</option>
             <option value="en">{t("english")}</option>
           </Select>
-          {(loading && !loadingTimeout) ? (
-            <div className="h-9 w-20 bg-[color:var(--bg-soft)] animate-pulse rounded-md"></div>
-          ) : user ? (
-            <div className="flex items-center gap-3">
-              <div className="text-sm text-[color:var(--text-muted)]">
-                <p className="font-medium text-[color:var(--text-strong)]">{user.fullName || user.email}</p>
-                <p className="text-xs capitalize text-[color:var(--text-muted)]">
-                  {t(`roles.${user.role}` as any)}
-                </p>
-              </div>
-              <Button variant="secondary" onClick={() => signOut().catch(error => console.error('Error al cerrar sesión:', error))}>
-                {t("signOut")}
-              </Button>
-            </div>
-          ) : (
-            <Button variant="secondary" asChild>
-              <Link href="/sign-up">{t("signIn")}</Link>
-            </Button>
-          )}
+          <Button variant="secondary" asChild>
+            <Link href="/sign-up">{t("signIn")}</Link>
+          </Button>
         </div>
       </div>
     </header>
