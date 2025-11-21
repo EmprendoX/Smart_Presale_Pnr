@@ -21,7 +21,7 @@ import { Tabs } from "@/components/ui/Tabs";
 import LineChart from "@/components/charts/LineChart";
 import StudyList from "@/components/StudyList";
 import SecondaryMarketPanel from "@/components/SecondaryMarketPanel";
-import ReserveDialog from "@/components/ReserveDialog";
+import { ProjectReservationForm } from "@/components/ProjectReservationForm";
 import { DocumentList } from "@/components/DocumentList";
 import { Link } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
@@ -378,20 +378,19 @@ export default async function ProjectPage({ params }: { params: Params }) {
       <Card>
         <CardHeader><h3 className="text-lg">{t("project.actions.title")}</h3></CardHeader>
         <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="text-sm text-neutral-700">
-            {project.listingType === "presale" && round
-              ? `${round.groupSlots ? `${t("project.actions.group")}: ${round.groupSlots} slots. ` : ""}${t("project.actions.depositPerSlot")}: ${fmtCurrency(round.depositAmount, project.currency, locale)}.`
-              : t("project.actions.saleDescription")}
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {project.listingType === "presale" && round ? (
-              <ReserveDialog project={project} round={round} />
-            ) : (
+          <div className="space-y-4">
+            <div className="text-sm text-neutral-700">
+              {project.listingType === "presale" && round
+                ? `${round.groupSlots ? `${t("project.actions.group")}: ${round.groupSlots} slots. ` : ""}${t("project.actions.depositPerSlot")}: ${fmtCurrency(round.depositAmount, project.currency, locale)}.`
+                : t("project.actions.saleDescription")}
+            </div>
+            <ProjectReservationForm projectSlug={project.slug} projectName={project.name} />
+            <div className="flex flex-wrap items-center gap-2">
               <Link href={globalCommunity ? `/community/${globalCommunity.slug}` : "/community"} className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:opacity-90">
                 {t("project.actions.contactSales")}
               </Link>
-            )}
-            <Link href={`/dashboard`} className="text-brand hover:underline text-sm">{t("project.actions.viewMyReservations")}</Link>
+              <Link href={`/dashboard`} className="text-brand hover:underline text-sm">{t("project.actions.viewMyReservations")}</Link>
+            </div>
           </div>
         </CardContent>
       </Card>
