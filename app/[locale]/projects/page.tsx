@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Link } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
+import LeadAccessGate from "@/components/LeadAccessGate";
 import {
   listPublishedProjects,
   findRoundByProject,
@@ -213,8 +214,9 @@ export default async function ProjectsPage({ params }: { params: Params }) {
   };
 
   return (
-    <div className="space-y-12">
-      <Script id="projects-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+    <LeadAccessGate>
+      <div className="space-y-12">
+        <Script id="projects-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
 
       {/* Hero */}
       {heroProject && (
@@ -321,6 +323,7 @@ export default async function ProjectsPage({ params }: { params: Params }) {
           ))}
         </div>
       </section>
-    </div>
+      </div>
+    </LeadAccessGate>
   );
 }

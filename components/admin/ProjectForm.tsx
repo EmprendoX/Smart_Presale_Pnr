@@ -27,7 +27,8 @@ const getInitialFormData = (project?: Project | null): Partial<Project> => ({
   city: project?.city || "",
   country: project?.country || "",
   currency: project?.currency || "USD",
-  status: project?.status || "draft",
+  // Publicado por defecto para que aparezca en los listados sin pasos extra
+  status: project?.status || "published",
   listingType: "presale",
   description: project?.description || "",
   images: project?.images || [],

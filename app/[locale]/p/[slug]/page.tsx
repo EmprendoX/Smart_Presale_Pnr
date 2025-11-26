@@ -26,6 +26,7 @@ import { DocumentList } from "@/components/DocumentList";
 import { Link } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
 import { db } from "@/lib/config";
+import LeadAccessGate from "@/components/LeadAccessGate";
 
 export const revalidate = 0;
 
@@ -341,51 +342,53 @@ export default async function ProjectPage({ params }: { params: Params }) {
   );
 
   return (
-    <div className="space-y-6">
-      <Script id="project-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
-      <FinancialHeader
-        name={project.name}
-        ticker={project.ticker}
-        listingType={project.listingType}
-        stage={project.stage || project.developmentStage}
-        availability={availability}
-        deadlineAt={round?.deadlineAt}
-        percent={summary?.percent}
-        showProgress={!!round}
-        kpis={kpis}
-        status={round?.status}
-      />
+    <LeadAccessGate>
+      <div className="space-y-6">
+        <Script id="project-schema" type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
+        <FinancialHeader
+          name={project.name}
+          ticker={project.ticker}
+          listingType={project.listingType}
+          stage={project.stage || project.developmentStage}
+          availability={availability}
+          deadlineAt={round?.deadlineAt}
+          percent={summary?.percent}
+          showProgress={!!round}
+          kpis={kpis}
+          status={round?.status}
+        />
 
-      <Tabs
-        tabs={[
-          { key: "overview", label: t("project.tabs.overview"), content: tabOverview },
-          { key: "documents", label: t("project.tabs.documents"), content: tabDocuments },
-          { key: "research", label: t("project.tabs.research"), content: tabResearch },
-          { key: "market", label: t("project.tabs.market"), content: tabMarket },
-          { key: "secondary", label: t("project.tabs.secondary"), content: tabSecondary },
-          { key: "timeline", label: t("project.tabs.timeline"), content: tabTimeline }
-        ]}
-      />
+        <Tabs
+          tabs={[
+            { key: "overview", label: t("project.tabs.overview"), content: tabOverview },
+            { key: "documents", label: t("project.tabs.documents"), content: tabDocuments },
+            { key: "research", label: t("project.tabs.research"), content: tabResearch },
+            { key: "market", label: t("project.tabs.market"), content: tabMarket },
+            { key: "secondary", label: t("project.tabs.secondary"), content: tabSecondary },
+            { key: "timeline", label: t("project.tabs.timeline"), content: tabTimeline }
+          ]}
+        />
 
-      <Card>
-        <CardHeader><h3 className="text-lg">{t("project.actions.title")}</h3></CardHeader>
-        <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="space-y-4">
-            <div className="text-sm text-neutral-700">
-              {project.listingType === "presale" && round
-                ? `${round.groupSlots ? `${t("project.actions.group")}: ${round.groupSlots} slots. ` : ""}${t("project.actions.depositPerSlot")}: ${fmtCurrency(round.depositAmount, project.currency, locale)}.`
-                : t("project.actions.saleDescription")}
+        <Card>
+          <CardHeader><h3 className="text-lg">{t("project.actions.title")}</h3></CardHeader>
+          <CardContent className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="space-y-4">
+              <div className="text-sm text-neutral-700">
+                {project.listingType === "presale" && round
+                  ? `${round.groupSlots ? `${t("project.actions.group")}: ${round.groupSlots} slots. ` : ""}${t("project.actions.depositPerSlot")}: ${fmtCurrency(round.depositAmount, project.currency, locale)}.`
+                  : t("project.actions.saleDescription")}
+              </div>
+              <ProjectReservationForm projectSlug={project.slug} projectName={project.name} />
+              <div className="flex flex-wrap items-center gap-2">
+                <Link href={globalCommunity ? `/community/${globalCommunity.slug}` : "/community"} className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:opacity-90">
+                  {t("project.actions.contactSales")}
+                </Link>
+                <Link href={`/dashboard`} className="text-brand hover:underline text-sm">{t("project.actions.viewMyReservations")}</Link>
+              </div>
             </div>
-            <ProjectReservationForm projectSlug={project.slug} projectName={project.name} />
-            <div className="flex flex-wrap items-center gap-2">
-              <Link href={globalCommunity ? `/community/${globalCommunity.slug}` : "/community"} className="rounded-md bg-brand px-4 py-2 text-sm font-medium text-white hover:opacity-90">
-                {t("project.actions.contactSales")}
-              </Link>
-              <Link href={`/dashboard`} className="text-brand hover:underline text-sm">{t("project.actions.viewMyReservations")}</Link>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
+          </CardContent>
+        </Card>
+      </div>
+    </LeadAccessGate>
   );
 }

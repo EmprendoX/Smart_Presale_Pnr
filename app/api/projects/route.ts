@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
       city: body.city.trim(),
       country: body.country.trim(),
       currency: body.currency || "USD",
-      status: body.status || "draft",
+      // Publicar por defecto para que los listados sean visibles sin pasos extra
+      status: body.status || "published",
       tenantId: body.tenantId || DEFAULT_TENANT_ID,
       images: Array.isArray(body.images) ? body.images.filter(Boolean) : [],
       videoUrl: body.videoUrl?.trim() || undefined,
@@ -84,6 +85,11 @@ export async function POST(request: NextRequest) {
       automationReady: Boolean(body.automationReady),
       agentIds: Array.isArray(body.agentIds) ? body.agentIds.filter(Boolean) : undefined,
     };
+
+    // Si no se proporcionan imágenes, usar un placeholder para que la UI siempre muestre una portada
+    if (!projectData.images || projectData.images.length === 0) {
+      projectData.images = ["/images/project-placeholder.svg"];
+    }
 
     const created = await db.createProject(projectData);
 
