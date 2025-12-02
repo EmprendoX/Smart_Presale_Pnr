@@ -46,10 +46,12 @@ function buildCookieAttributes(config: { domain?: string; sameSite: NormalizedSa
  * Verifica si Supabase está habilitado y configurado correctamente
  */
 export function isSupabaseEnabled(): boolean {
-  const useSupabase = process.env.USE_SUPABASE?.toLowerCase() === 'true';
+  const useSupabaseEnv = process.env.USE_SUPABASE ?? process.env.NEXT_PUBLIC_USE_SUPABASE;
+  const useSupabase = useSupabaseEnv ? useSupabaseEnv.toLowerCase() === 'true' : true;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+  // Habilitar Supabase cuando hay credenciales presentes a menos que se deshabilite explícitamente
   return !!(useSupabase && url && anonKey);
 }
 
