@@ -94,7 +94,7 @@ export function SpecsEditor({ specs, onChange }: SpecsEditorProps) {
       )}
 
       <p className="text-xs text-neutral-500">
-        Agrega especificaciones clave-valor (ej: "Entrega": "Q2 2027", "Régimen": "Condominal").
+        Agrega especificaciones clave-valor (ej: &quot;Entrega&quot;: &quot;Q2 2027&quot;, &quot;Régimen&quot;: &quot;Condominal&quot;).
       </p>
     </div>
   );

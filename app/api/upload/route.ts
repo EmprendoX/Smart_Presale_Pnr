@@ -33,14 +33,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // MVP: Por ahora retornamos una URL mock usando un servicio público
-    // En producción, esto debería subir a Supabase Storage
-    const fileExt = file.name.split(".").pop() || "jpg";
-    const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
-    
-    // Usar un servicio de placeholder o convertir a base64
-    // Por ahora, retornamos una URL de placeholder
-    const mockUrl = `https://via.placeholder.com/800x600/cccccc/666666?text=${encodeURIComponent(fileName)}`;
+    // Convertir el archivo a data URL para guardarlo en el mock DB
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+    const base64 = buffer.toString("base64");
+    const dataUrl = `data:${file.type};base64,${base64}`;
 
     // TODO: Cuando Supabase Storage esté configurado:
     // const supabase = createRouteHandlerClient({ cookies });
@@ -55,9 +52,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      url: mockUrl,
-      path: `${projectId || 'temp'}/${fileName}`,
-      message: "Archivo procesado (MVP: URL mock)"
+      url: dataUrl,
+      path: `${projectId || 'temp'}/${Date.now()}-${Math.random().toString(36).substring(7)}`,
+      message: "Archivo procesado (MVP: data URL en memoria)"
     });
   } catch (error: any) {
     console.error("[API /upload] Error:", error);

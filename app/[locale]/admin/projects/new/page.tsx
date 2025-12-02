@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
+import { useTranslations, useLocale } from "next-intl";
 import { useToast } from "@/components/ui/Toast";
 import { ProjectForm } from "@/components/admin/ProjectForm";
 import { api } from "@/lib/api";
@@ -10,6 +10,7 @@ import { Project } from "@/lib/types";
 
 export default function NewProjectPage() {
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("admin");
   const { show } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -43,7 +44,7 @@ export default function NewProjectPage() {
       
       if (result.ok && result.data) {
         show("Proyecto creado exitosamente", "Éxito");
-        router.push("/admin");
+        router.push("/admin", { locale });
       } else {
         throw new Error(result.error || "Error al crear el proyecto");
       }
@@ -55,7 +56,7 @@ export default function NewProjectPage() {
   };
 
   const handleCancel = () => {
-    router.push("/admin");
+    router.push("/admin", { locale });
   };
 
   if (loading) {

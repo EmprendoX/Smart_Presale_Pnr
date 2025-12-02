@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useTranslations } from "next-intl";
+import { useRouter } from "@/i18n/routing";
+import { useTranslations, useLocale } from "next-intl";
 import { useToast } from "@/components/ui/Toast";
 import { ProjectForm } from "@/components/admin/ProjectForm";
 import { api } from "@/lib/api";
@@ -13,6 +13,7 @@ type Params = { locale: string; slug: string };
 
 export default function EditProjectPage({ params }: { params: Params }) {
   const router = useRouter();
+  const locale = useLocale();
   const t = useTranslations("admin");
   const { show } = useToast();
   const { slug } = params;
@@ -64,7 +65,7 @@ export default function EditProjectPage({ params }: { params: Params }) {
       
       if (result.ok && result.data) {
         show("Proyecto actualizado exitosamente", "Éxito");
-        router.push("/admin");
+        router.push("/admin", { locale });
       } else {
         throw new Error(result.error || "Error al actualizar el proyecto");
       }
@@ -76,7 +77,7 @@ export default function EditProjectPage({ params }: { params: Params }) {
   };
 
   const handleCancel = () => {
-    router.push("/admin");
+    router.push("/admin", { locale });
   };
 
   if (loading) {
@@ -98,7 +99,7 @@ export default function EditProjectPage({ params }: { params: Params }) {
           <CardContent className="p-12 text-center">
             <p className="text-red-600">{error || "Proyecto no encontrado"}</p>
             <button
-              onClick={() => router.push("/admin")}
+              onClick={() => router.push("/admin", { locale })}
               className="mt-4 text-sm text-[color:var(--brand-primary)] hover:underline"
             >
               Volver al admin

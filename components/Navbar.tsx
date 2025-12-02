@@ -27,33 +27,24 @@ export function Navbar() {
     setMounted(true);
   }, []);
 
-  // Prevenir loops infinitos en cambio de locale
+  // Guardar el locale seleccionado para futuras sesiones (sin disparar redirecciones)
   useEffect(() => {
     if (!mounted || typeof window === "undefined") return;
-    
     try {
-      const savedLocale = localStorage.getItem("sps_locale");
-      if (savedLocale && savedLocale !== locale && (savedLocale === "es" || savedLocale === "en")) {
-        // Solo cambiar si el locale guardado es diferente y válido
-        const currentPath = pathname || "/";
-        const pathWithoutLocale = currentPath.replace(/^\/(es|en)/, "") || "/";
-        router.replace(pathWithoutLocale, { locale: savedLocale });
-      }
+      localStorage.setItem("sps_locale", locale);
     } catch (error) {
-      console.error("Error en cambio de locale:", error);
+      console.error("Error guardando locale:", error);
     }
-  }, [mounted, locale, pathname, router]);
+  }, [mounted, locale]);
 
   const changeLanguage = (newLocale: string) => {
-    if (typeof window !== "undefined" && (newLocale === "es" || newLocale === "en")) {
-      try {
-        localStorage.setItem("sps_locale", newLocale);
-        const currentPath = pathname || "/";
-        const pathWithoutLocale = currentPath.replace(/^\/(es|en)/, "") || "/";
-        router.replace(pathWithoutLocale, { locale: newLocale });
-      } catch (error) {
-        console.error("Error cambiando idioma:", error);
-      }
+    if (typeof window === "undefined" || !(newLocale === "es" || newLocale === "en")) return;
+    try {
+      localStorage.setItem("sps_locale", newLocale);
+      const currentPath = pathname || "/";
+      router.replace(currentPath, { locale: newLocale });
+    } catch (error) {
+      console.error("Error cambiando idioma:", error);
     }
   };
 

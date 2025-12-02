@@ -61,7 +61,7 @@ export function AttributesList({ attributes, onChange }: AttributesListProps) {
       )}
 
       <p className="text-xs text-neutral-500">
-        Agrega las amenidades del proyecto. Presiona Enter o haz clic en "Agregar" para añadir cada una.
+        Agrega las amenidades del proyecto. Presiona Enter o haz clic en &quot;Agregar&quot; para añadir cada una.
       </p>
     </div>
   );

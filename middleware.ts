@@ -10,11 +10,6 @@ export default async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    '/',
-    '/(es|en)/:path*',
-    // Excluir rutas de API, auth, archivos estáticos y Next.js internals
-    '/((?!api|_next|_vercel|auth|.*\\..*).*)'
-  ]
+  matcher: ['/', '/(es|en)/:path*']
 };
 
