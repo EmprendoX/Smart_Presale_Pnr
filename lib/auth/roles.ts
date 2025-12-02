@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient, createSupabaseServerClientForReading, getSessionFromCookies, mapSupabaseUser, isSupabaseEnabled, type AppUser } from './supabase';
+import { createSupabaseServerClient, createSupabaseServerClientForReading, getSessionFromCookies, mapSupabaseUser, isSupabaseEnabled, resolveRole, type AppUser } from './supabase';
 import { mapJsonUser } from './json-auth';
 import { Role } from '@/lib/types';
 import type { DatabaseService } from '@/lib/services/db';
@@ -149,7 +149,7 @@ export async function getAuthenticatedUser(
     if (!appUser) {
       try {
         // Obtener rol de user_metadata o usar 'investor' por defecto
-        const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'investor';
+        const roleFromMetadata = resolveRole(authUser);
         const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
         
         // Crear usuario en app_users
@@ -165,7 +165,7 @@ export async function getAuthenticatedUser(
       } catch (error) {
         console.warn('[getAuthenticatedUser] No se pudo crear usuario en app_users, usando user_metadata:', error);
         // Si falla, usar user_metadata directamente
-        const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'investor';
+        const roleFromMetadata = resolveRole(authUser);
         const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
         
         return {
@@ -219,7 +219,7 @@ export async function getAuthenticatedUserEdge(
     }
 
     const authUser = data.session.user;
-    const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'investor';
+    const roleFromMetadata = resolveRole(authUser);
     const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
 
     return {

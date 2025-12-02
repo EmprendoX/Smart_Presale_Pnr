@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { Provider as OAuthProvider, Session } from '@supabase/supabase-js';
 import { getAuthClient } from '@/lib/auth/index';
-import { isSupabaseEnabled } from '@/lib/auth/supabase';
+import { isSupabaseEnabled, resolveRole } from '@/lib/auth/supabase';
 import { mapJsonUser, type AppUser } from '@/lib/auth/json-auth';
 
 type AuthContextValue = {
@@ -55,7 +55,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             setUser({
               id: supabaseUser.id,
               email: supabaseUser.email ?? '',
-              role: (supabaseUser.user_metadata?.role as 'investor' | 'admin') ?? 'investor',
+              role: resolveRole(supabaseUser),
               kycStatus: (supabaseUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none',
               fullName: supabaseUser.user_metadata?.fullName ?? supabaseUser.user_metadata?.name ?? null,
               avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,
@@ -104,7 +104,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           setUser({
             id: supabaseUser.id,
             email: supabaseUser.email ?? '',
-            role: (supabaseUser.user_metadata?.role as 'investor' | 'admin') ?? 'investor',
+            role: resolveRole(supabaseUser),
             kycStatus: (supabaseUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none',
             fullName: supabaseUser.user_metadata?.fullName ?? supabaseUser.user_metadata?.name ?? null,
             avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,
@@ -174,7 +174,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               setUser({
                 id: supabaseUser.id,
                 email: supabaseUser.email ?? '',
-                role: (supabaseUser.user_metadata?.role as 'investor' | 'admin') ?? 'investor',
+                role: resolveRole(supabaseUser),
                 kycStatus: (supabaseUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none',
                 fullName: supabaseUser.user_metadata?.fullName ?? supabaseUser.user_metadata?.name ?? null,
                 avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,

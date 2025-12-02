@@ -3,7 +3,7 @@
  * Funciona tanto con Supabase como con modo JSON según la configuración
  */
 
-import { isSupabaseEnabled, getSupabaseBrowserClient, createSupabaseServerClient, type AppUser, mapSupabaseUser } from './supabase';
+import { isSupabaseEnabled, getSupabaseBrowserClient, createSupabaseServerClient, resolveRole, type AppUser, mapSupabaseUser } from './supabase';
 import { getJsonAuthClient, mapJsonUser, getDemoUsers } from './json-auth';
 import type { NextRequest, NextResponse } from 'next/server';
 import type { Session, User, Provider } from '@supabase/supabase-js';
@@ -43,12 +43,13 @@ export function getAuthClient(): AuthClient {
         signOut: () => supabase.auth.signOut(),
         signInWithOtp: async (options) => {
           console.log('[AuthClient] Supabase OTP sign in for investor:', options.email);
+          const role = resolveRole({ email: options.email, user_metadata: {} });
           const result = await supabase.auth.signInWithOtp({
             email: options.email,
             options: {
               ...options.options,
               data: {
-                role: 'investor', // Asignar rol de inversionista por defecto
+                role, // Asignar rol basado en allowlist de admin
                 kycStatus: 'none'
               }
             }
@@ -127,17 +128,12 @@ export async function getAuthenticatedUser(): Promise<AppUser | null> {
     if (isSupabaseEnabled()) {
       // En modo Supabase, mapear desde user_metadata con roles simplificados
       const supabaseUser = data.session.user;
-      const role = (supabaseUser.user_metadata?.role as 'investor' | 'admin') ?? 'investor';
-      
-      // Validar que el rol sea válido (solo investor o admin)
-      if (role !== 'investor' && role !== 'admin') {
-        console.warn('[getAuthenticatedUser] Invalid role detected, defaulting to investor:', role);
-      }
-      
+      const role = resolveRole(supabaseUser);
+
       return {
         id: supabaseUser.id,
         email: supabaseUser.email ?? '',
-        role: (role === 'admin') ? 'admin' : 'investor',
+        role,
         kycStatus: (supabaseUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none',
         fullName: supabaseUser.user_metadata?.fullName ?? supabaseUser.user_metadata?.name ?? null,
         avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,

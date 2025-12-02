@@ -7,19 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { useAuth } from "@/providers/AuthProvider";
-
-// Verificar si Supabase está habilitado en el cliente
-// Necesitamos verificar si las variables están definidas en tiempo de compilación
-const isSupabaseEnabledClient = () => {
-  // Verificar si las variables de entorno están disponibles
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-  
-  console.log('[isSupabaseEnabledClient] URL:', supabaseUrl ? 'SET' : 'NOT SET');
-  console.log('[isSupabaseEnabledClient] KEY:', supabaseKey ? 'SET' : 'NOT SET');
-  
-  return !!(supabaseUrl && supabaseKey);
-};
+import { isSupabaseEnabled } from "@/lib/auth/supabase";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -27,6 +15,7 @@ export default function LoginPage() {
   const params = useParams();
   const t = useTranslations("auth");
   const { signInWithOtp } = useAuth();
+  const supabaseEnabled = useMemo(() => isSupabaseEnabled(), []);
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -54,7 +43,7 @@ export default function LoginPage() {
     setSuccess(false);
 
     try {
-      if (isSupabaseEnabledClient()) {
+      if (supabaseEnabled) {
         // Autenticación real con Supabase OTP
         console.log('[LoginPage] Using Supabase OTP authentication');
         const result = await signInWithOtp(formData.email, {
@@ -103,11 +92,11 @@ export default function LoginPage() {
       <Card className="w-full max-w-md">
         <CardHeader>
           <h1 className="text-2xl font-semibold text-[color:var(--text-strong)]">
-            {isSupabaseEnabledClient() ? "Acceso para Inversionistas" : t("login.title")}
+            {supabaseEnabled ? "Acceso para Inversionistas" : t("login.title")}
           </h1>
           <p className="text-sm text-[color:var(--text-muted)] mt-2">
-            {isSupabaseEnabledClient() 
-              ? "Ingresa tu email para recibir un código de acceso seguro" 
+            {supabaseEnabled
+              ? "Ingresa tu email para recibir un código de acceso seguro"
               : t("login.subtitle")
             }
           </p>
@@ -117,14 +106,14 @@ export default function LoginPage() {
             <div className="space-y-4">
               <div className="rounded-lg bg-green-50 border border-green-200 p-4">
                 <p className="text-sm text-green-800">
-                  {isSupabaseEnabledClient() 
-                    ? "¡Código enviado exitosamente!" 
+                  {supabaseEnabled
+                    ? "¡Código enviado exitosamente!"
                     : t("login.successMessage")
                   }
                 </p>
                 <p className="text-xs text-green-700 mt-2">
-                  {isSupabaseEnabledClient() 
-                    ? "Revisa tu email y haz clic en el enlace para acceder como inversionista." 
+                  {supabaseEnabled
+                    ? "Revisa tu email y haz clic en el enlace para acceder como inversionista."
                     : t("login.checkEmail")
                   }
                 </p>
@@ -142,7 +131,7 @@ export default function LoginPage() {
             </div>
           ) : (
             <form onSubmit={handleSubmit} className="space-y-4">
-              {!isSupabaseEnabledClient() && (
+              {!supabaseEnabled && (
                 <>
                   <Input
                     label={t("login.fullName")}
@@ -167,14 +156,14 @@ export default function LoginPage() {
                 </>
               )}
               <Input
-                label={isSupabaseEnabledClient() ? "Email de Inversionista" : t("login.email")}
+                label={supabaseEnabled ? "Email de Inversionista" : t("login.email")}
                 type="email"
                 required
                 value={formData.email}
                 onChange={(e) =>
                   setFormData({ ...formData, email: e.target.value })
                 }
-                placeholder={isSupabaseEnabledClient() ? "tu-email@ejemplo.com" : t("login.emailPlaceholder")}
+                placeholder={supabaseEnabled ? "tu-email@ejemplo.com" : t("login.emailPlaceholder")}
               />
               {error && (
                 <div className="rounded-lg bg-red-50 border border-red-200 p-3">
@@ -187,9 +176,9 @@ export default function LoginPage() {
                 className="w-full"
                 disabled={isLoading}
               >
-                {isLoading 
-                  ? (isSupabaseEnabledClient() ? "Enviando código..." : t("login.sending"))
-                  : (isSupabaseEnabledClient() ? "Enviar código de acceso" : t("login.sendCode"))
+                {isLoading
+                  ? (supabaseEnabled ? "Enviando código..." : t("login.sending"))
+                  : (supabaseEnabled ? "Enviar código de acceso" : t("login.sendCode"))
                 }
               </Button>
             </form>

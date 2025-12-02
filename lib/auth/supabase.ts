@@ -46,11 +46,39 @@ function buildCookieAttributes(config: { domain?: string; sameSite: NormalizedSa
  * Verifica si Supabase está habilitado y configurado correctamente
  */
 export function isSupabaseEnabled(): boolean {
-  const useSupabase = process.env.USE_SUPABASE?.toLowerCase() === 'true';
+  const useSupabaseEnv = process.env.USE_SUPABASE ?? process.env.NEXT_PUBLIC_USE_SUPABASE;
+  const useSupabase = useSupabaseEnv ? useSupabaseEnv.toLowerCase() === 'true' : true;
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+  // Habilitar Supabase cuando hay credenciales presentes a menos que se deshabilite explícitamente
   return !!(useSupabase && url && anonKey);
+}
+
+function getAdminEmailSet(): Set<string> {
+  const raw = process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '';
+  return new Set(
+    raw
+      .split(',')
+      .map(email => email.trim().toLowerCase())
+      .filter(Boolean)
+  );
+}
+
+export function resolveRole(user: Pick<User, 'email' | 'user_metadata'> | null): Role {
+  const adminEmails = getAdminEmailSet();
+  const email = user?.email?.toLowerCase();
+  const roleFromMetadata = user?.user_metadata?.role as Role | undefined;
+
+  if (email && adminEmails.has(email)) {
+    return 'admin';
+  }
+
+  if (roleFromMetadata === 'admin') {
+    return 'admin';
+  }
+
+  return 'investor';
 }
 
 function getSupabaseMockClient(): SupabaseClient {
@@ -528,7 +556,7 @@ export const mapSupabaseUser = (user: User | null): AppUser | null => {
     return null;
   }
 
-  const role = (user.user_metadata?.role as Role) ?? 'buyer';
+  const role = resolveRole(user);
   const kycStatus = (user.user_metadata?.kycStatus as KycStatus) ?? 'none';
 
   return {
@@ -563,7 +591,10 @@ export const signInWithOtp = async (
     email,
     options: {
       emailRedirectTo: options?.redirectTo,
-      shouldCreateUser: options?.shouldCreateUser ?? true
+      shouldCreateUser: options?.shouldCreateUser ?? true,
+      data: {
+        role: resolveRole({ email, user_metadata: {} })
+      }
     }
   });
 
