@@ -424,9 +424,12 @@ create policy "communities_modify_service" on communities for all using (auth.ro
 create policy "automations_modify_service" on automation_workflows for all using (auth.role() = 'service_role');
 create policy "agents_modify_service" on intelligent_agents for all using (auth.role() = 'service_role');
 
--- Seed default tenant ----------------------------------------------------
+with settings as (
+  select coalesce(nullif(current_setting('app.default_tenant_id', true), ''), 'tenant_default') as default_tenant_id
+)
 insert into tenants (id, slug, name, status, metadata)
-values ('tenant_default', 'smart-presale', 'Smart Pre-Sale', 'active', '{"default": true}')
+select default_tenant_id, 'smart-presale', 'Smart Pre-Sale', 'active', '{"default": true}'
+from settings
 on conflict (id) do update set
   slug = excluded.slug,
   name = excluded.name,
@@ -434,6 +437,9 @@ on conflict (id) do update set
   metadata = excluded.metadata,
   updated_at = now();
 
+with settings as (
+  select coalesce(nullif(current_setting('app.default_tenant_id', true), ''), 'tenant_default') as default_tenant_id
+)
 insert into tenant_settings (
   tenant_id,
   logo_url,
@@ -450,8 +456,8 @@ insert into tenant_settings (
   font_family,
   metadata
 )
-values (
-  'tenant_default',
+select
+  default_tenant_id,
   null,
   null,
   null,
@@ -465,7 +471,7 @@ values (
   '#111827',
   'Inter',
   '{"default": true}'
-)
+from settings
 on conflict (tenant_id) do update set
   logo_url = excluded.logo_url,
   dark_logo_url = excluded.dark_logo_url,
@@ -482,13 +488,89 @@ on conflict (tenant_id) do update set
   metadata = excluded.metadata,
   updated_at = now();
 
+with settings as (
+  select coalesce(nullif(current_setting('app.default_tenant_id', true), ''), 'tenant_default') as default_tenant_id
+), seed_users as (
+  select
+    'admin_demo'::text as id,
+    default_tenant_id as tenant_id,
+    'Admin Demo'::text as name,
+    'admin'::text as role,
+    'complete'::text as kyc_status,
+    'admin@smartpresale.demo'::text as email,
+    jsonb_build_object(
+      'role', 'admin',
+      'kycStatus', 'complete',
+      'fullName', 'Admin Demo',
+      'createdAt', now()
+    ) as metadata
+  from settings
+  union all
+  select
+    'investor_demo_complete',
+    default_tenant_id,
+    'Investor Demo (KYC Complete)',
+    'investor',
+    'complete',
+    'investor.complete@smartpresale.demo',
+    jsonb_build_object(
+      'role', 'investor',
+      'kycStatus', 'complete',
+      'fullName', 'Investor Demo (KYC Complete)',
+      'createdAt', now()
+    )
+  from settings
+  union all
+  select
+    'investor_demo_basic',
+    default_tenant_id,
+    'Investor Demo (KYC Pending)',
+    'investor',
+    'none',
+    'investor.pending@smartpresale.demo',
+    jsonb_build_object(
+      'role', 'investor',
+      'kycStatus', 'none',
+      'fullName', 'Investor Demo (KYC Pending)',
+      'createdAt', now()
+    )
+  from settings
+)
+insert into app_users (
+  id,
+  tenant_id,
+  name,
+  role,
+  kyc_status,
+  email,
+  metadata
+)
+select
+  id,
+  tenant_id,
+  name,
+  role,
+  kyc_status,
+  email,
+  metadata
+from seed_users
+on conflict (id) do update set
+  tenant_id = excluded.tenant_id,
+  name = excluded.name,
+  role = excluded.role,
+  kyc_status = excluded.kyc_status,
+  email = excluded.email,
+  metadata = excluded.metadata;
+
 -- Trigger para sincronizar auth.users con app_users ------------------------
 create or replace function public.handle_new_user()
 returns trigger as $$
 declare
-  default_tenant_id text := 'tenant_default';
+  default_tenant_id text := coalesce(nullif(current_setting('app.default_tenant_id', true), ''), 'tenant_default');
   user_full_name text;
   user_phone text;
+  user_role text;
+  user_kyc_status text;
 begin
   -- Extraer metadata del usuario
   user_full_name := coalesce(
@@ -497,6 +579,14 @@ begin
     split_part(new.email, '@', 1)
   );
   user_phone := new.raw_user_meta_data->>'phone';
+  user_role := case
+    when new.raw_user_meta_data->>'role' in ('investor','admin') then new.raw_user_meta_data->>'role'
+    else 'investor'
+  end;
+  user_kyc_status := case
+    when new.raw_user_meta_data->>'kycStatus' in ('none','complete') then new.raw_user_meta_data->>'kycStatus'
+    else 'none'
+  end;
 
   -- Crear registro en app_users si no existe
   insert into public.app_users (
@@ -512,12 +602,14 @@ begin
     new.id::text,
     default_tenant_id,
     user_full_name,
-    'buyer',
-    'none',
+    user_role,
+    user_kyc_status,
     new.email,
     jsonb_build_object(
       'fullName', user_full_name,
       'phone', user_phone,
+      'role', user_role,
+      'kycStatus', user_kyc_status,
       'createdAt', now()
     )
   )
