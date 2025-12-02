@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/config";
 import { Project } from "@/lib/types";
+import { getAuthenticatedUser, requireRole } from "@/lib/auth/roles";
 import { randomUUID } from "crypto";
 
 const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID || "tenant_default";
@@ -23,6 +24,12 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getAuthenticatedUser(request);
+
+    if (!requireRole(user, ["admin"])) {
+      return NextResponse.json({ ok: false, error: "Unauthorized" }, { status: 403 });
+    }
+
     const body = await request.json();
     
     // Validaciones básicas
@@ -50,7 +57,20 @@ export async function POST(request: NextRequest) {
     }
 
     const now = new Date().toISOString();
-    
+    const tenantId = (user?.metadata?.tenantId as string | undefined) || DEFAULT_TENANT_ID;
+    const developers = await db.getDevelopers();
+    const developerForUser = developers.find(dev => dev.userId === user?.id && (dev.tenantId || DEFAULT_TENANT_ID) === tenantId);
+
+    const developerId = body.developerId?.trim()
+      || developerForUser?.id
+      || (await db.createDeveloper({
+        id: randomUUID(),
+        userId: user?.id || "",
+        company: user?.fullName || user?.email || "Administrador",
+        tenantId,
+        verifiedAt: now
+      })).id;
+
     const projectData: Project = {
       id: randomUUID(),
       slug,
@@ -60,11 +80,11 @@ export async function POST(request: NextRequest) {
       currency: body.currency || "USD",
       // Publicar por defecto para que los listados sean visibles sin pasos extra
       status: body.status || "published",
-      tenantId: body.tenantId || DEFAULT_TENANT_ID,
+      tenantId,
       images: Array.isArray(body.images) ? body.images.filter(Boolean) : [],
       videoUrl: body.videoUrl?.trim() || undefined,
       description: body.description?.trim() || "",
-      developerId: body.developerId?.trim() || "",
+      developerId,
       createdAt: now,
       listingType: "presale",
       stage: body.stage?.trim() || undefined,
