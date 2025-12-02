@@ -92,9 +92,14 @@ export function Navbar() {
               </Button>
             </div>
           ) : (
-            <Button variant="secondary" asChild>
-              <Link href="/auth/login">Acceso Inversionistas</Link>
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" asChild>
+                <Link href="/auth/login">Acceso Inversionistas</Link>
+              </Button>
+              <Button variant="primary" asChild>
+                <Link href="/auth/login?redirect=/admin">{t("adminAccess")}</Link>
+              </Button>
+            </div>
           )}
         </div>
       </div>
