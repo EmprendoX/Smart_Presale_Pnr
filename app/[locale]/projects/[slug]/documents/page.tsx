@@ -35,8 +35,8 @@ export default async function InvestmentRoomPage({
   const selectedUserId = searchParams?.user;
   const user = selectedUserId ? await db.getUserById(selectedUserId) : users[0] ?? null;
 
-  const hasKyc = user?.kycStatus === "verified" || user?.kycStatus === "basic";
-  const allowedRole = user?.role === "buyer" || user?.role === "admin" || user?.role === "developer";
+  const hasKyc = user?.kycStatus === "complete";
+  const allowedRole = user?.role === "investor" || user?.role === "admin";
   const canAccess = Boolean(user && hasKyc && allowedRole);
 
   const escrowAmount = round?.depositAmount ?? (project.askingPrice ? project.askingPrice * 0.1 : 25000);

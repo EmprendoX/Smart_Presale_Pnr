@@ -6,28 +6,20 @@ import type { AppUser, Role, KycStatus } from './supabase';
 
 // Usuarios demo disponibles (de lib/mockdb.ts)
 const DEMO_USERS: Record<string, AppUser> = {
-  "u_buyer_1": {
-    id: "u_buyer_1",
+  "u_investor_1": {
+    id: "u_investor_1",
     email: "ana@example.com",
-    role: "buyer",
+    role: "investor",
     kycStatus: "complete",
-    fullName: "Ana Compradora",
-    metadata: {}
-  },
-  "u_dev_1": {
-    id: "u_dev_1",
-    email: "carlos@example.com",
-    role: "developer",
-    kycStatus: "complete",
-    fullName: "Carlos Dev",
+    fullName: "Ana Inversionista",
     metadata: {}
   },
   "u_admin_1": {
     id: "u_admin_1",
-    email: "pat@example.com",
+    email: "admin@example.com",
     role: "admin",
     kycStatus: "complete",
-    fullName: "Pat Admin",
+    fullName: "Administrador",
     metadata: {}
   }
 };
@@ -146,7 +138,7 @@ class JsonAuthClient {
       await this.signIn(user.id);
     } else {
       console.warn('[JsonAuth] Usuario no encontrado por email, usando buyer por defecto');
-      await this.signIn('u_buyer_1');
+      await this.signIn('u_investor_1');
     }
     // Retornar información sobre autenticación automática
     return { error: null, data: { autoAuthenticated: true } };

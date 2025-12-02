@@ -41,8 +41,8 @@ create table if not exists app_users (
   id text primary key,
   tenant_id text not null references tenants(id) on delete cascade,
   name text not null,
-  role text not null check (role in ('buyer','developer','admin')),
-  kyc_status text not null check (kyc_status in ('none','basic','verified')),
+  role text not null check (role in ('investor','admin')),
+  kyc_status text not null check (kyc_status in ('none','complete')),
   email text,
   metadata jsonb default '{}'::jsonb,
   created_at timestamptz not null default now()

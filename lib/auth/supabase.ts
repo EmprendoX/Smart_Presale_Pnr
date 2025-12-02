@@ -54,13 +54,24 @@ function getSupabaseCredentials() {
 }
 
 export const getSupabaseBrowserClient = (): SupabaseClient => {
-  if (!isSupabaseEnabled()) {
-    console.warn('[Supabase] Returning mock client because USE_SUPABASE is not enabled');
+  // En el cliente, verificar solo las variables públicas disponibles
+  const hasSupabaseConfig = !!(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
+  
+  if (!hasSupabaseConfig) {
+    console.warn('[Supabase] Returning mock client because Supabase config not available in client');
     return getSupabaseMockClient();
   }
 
   if (!browserClient) {
-    const { url, anonKey } = getSupabaseCredentials();
+    // En el cliente, obtener credenciales directamente de las variables de entorno
+    const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    
+    if (!url || !anonKey) {
+      throw new Error('Supabase credentials not available in client. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
+    }
+    
+    console.log('[Supabase] Creating real Supabase client for browser');
     
     // Configurar el cliente con opciones que aseguran la lectura correcta de cookies
     // IMPORTANTE: Usar un storage personalizado que sincronice con cookies

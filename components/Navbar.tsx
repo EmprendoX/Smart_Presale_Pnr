@@ -63,8 +63,12 @@ export function Navbar() {
                 <Link href="/" className="hover:underline whitespace-nowrap">{t("projects")}</Link>
                 <Link href="/community" className="hover:underline whitespace-nowrap">{t("communities")}</Link>
                 <Link href="/p/how-it-works" className="hover:underline whitespace-nowrap">{t("howItWorks")}</Link>
-                <Link href="/dashboard" className="hover:underline whitespace-nowrap">{t("myReservations")}</Link>
-                <Link href="/admin" className="hover:underline whitespace-nowrap font-semibold text-[color:var(--brand-primary)]">{t("admin")}</Link>
+                {user && (
+                  <Link href="/dashboard" className="hover:underline whitespace-nowrap">{t("myReservations")}</Link>
+                )}
+                {user?.role === 'admin' && (
+                  <Link href="/admin" className="hover:underline whitespace-nowrap font-semibold text-[color:var(--brand-primary)]">{t("admin")}</Link>
+                )}
               </nav>
         </div>
         <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
@@ -76,6 +80,12 @@ export function Navbar() {
             <div className="flex items-center gap-2">
               <span className="text-sm text-[color:var(--text-muted)] hidden sm:inline">
                 {user.fullName || user.email}
+                {user.role === 'admin' && (
+                  <span className="ml-1 text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded">Admin</span>
+                )}
+                {user.role === 'investor' && (
+                  <span className="ml-1 text-xs bg-green-100 text-green-800 px-2 py-0.5 rounded">Inversionista</span>
+                )}
               </span>
               <Button variant="secondary" onClick={() => signOut()}>
                 {t("signOut") || "Salir"}
@@ -83,7 +93,7 @@ export function Navbar() {
             </div>
           ) : (
             <Button variant="secondary" asChild>
-              <Link href="/auth/login">{t("signIn")}</Link>
+              <Link href="/auth/login">Acceso Inversionistas</Link>
             </Button>
           )}
         </div>

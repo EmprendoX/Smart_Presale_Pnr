@@ -2,7 +2,9 @@
 
 import { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import type { Provider as OAuthProvider, Session } from '@supabase/supabase-js';
-import { getJsonAuthClient, mapJsonUser, type AppUser } from '@/lib/auth/json-auth';
+import { getAuthClient } from '@/lib/auth/index';
+import { isSupabaseEnabled } from '@/lib/auth/supabase';
+import { mapJsonUser, type AppUser } from '@/lib/auth/json-auth';
 
 type AuthContextValue = {
   user: AppUser | null;
@@ -34,20 +36,35 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       return;
     }
 
-    const client = getJsonAuthClient();
+    const authClient = getAuthClient();
     let isMounted = true;
     let unsubscribe: (() => void) | null = null;
 
     const loadSession = async () => {
       try {
-        const { data } = await client.getSession();
+        const { data } = await authClient.auth.getSession();
         
         if (!isMounted) return;
 
         setSession(data.session ?? null);
         
         if (data.session?.user) {
-          setUser(mapJsonUser(data.session.user.id));
+          if (isSupabaseEnabled()) {
+            // En modo Supabase, mapear desde user_metadata
+            const supabaseUser = data.session.user;
+            setUser({
+              id: supabaseUser.id,
+              email: supabaseUser.email ?? '',
+              role: (supabaseUser.user_metadata?.role as 'investor' | 'admin') ?? 'investor',
+              kycStatus: (supabaseUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none',
+              fullName: supabaseUser.user_metadata?.fullName ?? supabaseUser.user_metadata?.name ?? null,
+              avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,
+              metadata: supabaseUser.user_metadata ?? {}
+            });
+          } else {
+            // En modo mock, usar mapJsonUser
+            setUser(mapJsonUser(data.session.user.id));
+          }
         } else {
           setUser(null);
         }
@@ -66,7 +83,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     loadSession();
 
     // Suscribirse a cambios de estado de autenticación
-    const subscription = client.onAuthStateChange(async (event, nextSession) => {
+    const subscription = authClient.auth.onAuthStateChange(async (event, nextSession) => {
       if (!isMounted) return;
       
       console.log('[AuthProvider] Auth state changed:', event);
@@ -81,7 +98,22 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       setSession(nextSession ?? null);
       
       if (nextSession?.user) {
-        setUser(mapJsonUser(nextSession.user.id));
+        if (isSupabaseEnabled()) {
+          // En modo Supabase, mapear desde user_metadata
+          const supabaseUser = nextSession.user;
+          setUser({
+            id: supabaseUser.id,
+            email: supabaseUser.email ?? '',
+            role: (supabaseUser.user_metadata?.role as 'investor' | 'admin') ?? 'investor',
+            kycStatus: (supabaseUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none',
+            fullName: supabaseUser.user_metadata?.fullName ?? supabaseUser.user_metadata?.name ?? null,
+            avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,
+            metadata: supabaseUser.user_metadata ?? {}
+          });
+        } else {
+          // En modo mock, usar mapJsonUser
+          setUser(mapJsonUser(nextSession.user.id));
+        }
       } else {
         setUser(null);
       }
@@ -107,31 +139,46 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       loading,
       signInWithOtp: async (email, options) => {
         if (typeof window === 'undefined') return;
-        const client = getJsonAuthClient();
-        const result = await client.signInWithOtp({ email, options });
+        const authClient = getAuthClient();
+        const result = await authClient.auth.signInWithOtp({ email, options });
         return result.data;
       },
       signInWithOAuth: async (provider, options) => {
         if (typeof window === 'undefined') return;
-        const client = getJsonAuthClient();
-        await client.signInWithOAuth({ provider, options });
+        const authClient = getAuthClient();
+        await authClient.auth.signInWithOAuth({ provider, options });
       },
       signOut: async () => {
         if (typeof window === 'undefined') return;
-        const client = getJsonAuthClient();
-        await client.signOut();
+        const authClient = getAuthClient();
+        await authClient.auth.signOut();
         setUser(null);
         setSession(null);
       },
       refreshSession: async () => {
         if (typeof window === 'undefined') return;
         try {
-          const client = getJsonAuthClient();
-          const { data } = await client.getSession();
+          const authClient = getAuthClient();
+          const { data } = await authClient.auth.getSession();
           setSession(data.session ?? null);
           
           if (data.session?.user) {
-            setUser(mapJsonUser(data.session.user.id));
+            if (isSupabaseEnabled()) {
+              // En modo Supabase, mapear desde user_metadata
+              const supabaseUser = data.session.user;
+              setUser({
+                id: supabaseUser.id,
+                email: supabaseUser.email ?? '',
+                role: (supabaseUser.user_metadata?.role as 'investor' | 'admin') ?? 'investor',
+                kycStatus: (supabaseUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none',
+                fullName: supabaseUser.user_metadata?.fullName ?? supabaseUser.user_metadata?.name ?? null,
+                avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,
+                metadata: supabaseUser.user_metadata ?? {}
+              });
+            } else {
+              // En modo mock, usar mapJsonUser
+              setUser(mapJsonUser(data.session.user.id));
+            }
           } else {
             setUser(null);
           }

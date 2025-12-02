@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/config";
 import { randomUUID } from "crypto";
 
-const DEFAULT_USER_ID = "u_buyer_1"; // Usuario mock por defecto
+const DEFAULT_USER_ID = "u_investor_1"; // Usuario mock por defecto
 
 export async function POST(request: NextRequest) {
   try {

@@ -454,6 +454,3 @@ export function ProjectForm({
     </form>
   );
 }
-
-
-

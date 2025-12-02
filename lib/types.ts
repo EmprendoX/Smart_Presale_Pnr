@@ -1,4 +1,4 @@
-export type Role = "buyer" | "developer" | "admin";
+export type Role = "investor" | "admin";
 
 export type Currency = "USD" | "MXN";
 

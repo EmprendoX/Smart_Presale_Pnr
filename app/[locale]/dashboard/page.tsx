@@ -30,7 +30,7 @@ export default function DashboardPage() {
 
   const loadReservations = async () => {
     // Usar userId del usuario autenticado o usuario mock por defecto
-    const userId = user?.id || "u_buyer_1";
+    const userId = user?.id || "u_investor_1";
     
     setLoading(true);
     setError(null);

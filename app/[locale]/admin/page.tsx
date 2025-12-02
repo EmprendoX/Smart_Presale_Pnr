@@ -6,6 +6,9 @@ import { Button } from "@/components/ui/Button";
 import { db } from "@/lib/config";
 import { Project, Reservation } from "@/lib/types";
 import { fmtCurrency } from "@/lib/format";
+import { getAuthenticatedUser } from "@/lib/auth/roles";
+import { redirect } from "next/navigation";
+import { headers } from "next/headers";
 
 export const revalidate = 0;
 
@@ -22,6 +25,19 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function AdminPage({ params }: { params: Params }) {
   const { locale } = params;
   const t = await getTranslations({ locale, namespace: "admin" });
+
+  // Verificar que el usuario sea admin
+  const headersList = headers();
+  const request = {
+    headers: headersList,
+    nextUrl: { pathname: `/admin` }
+  } as any;
+  
+  const user = await getAuthenticatedUser(request);
+  
+  if (!user || user.role !== 'admin') {
+    redirect(`/${locale}/dashboard`);
+  }
 
   let allProjects: Project[] = [];
   let allReservations: Reservation[] = [];
@@ -207,4 +223,3 @@ export default async function AdminPage({ params }: { params: Params }) {
     </div>
   );
 }
-

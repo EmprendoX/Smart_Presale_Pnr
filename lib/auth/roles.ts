@@ -136,8 +136,8 @@ export async function getAuthenticatedUser(
     // Si no existe en app_users, intentar crear registro automáticamente
     if (!appUser) {
       try {
-        // Obtener rol de user_metadata o usar 'buyer' por defecto
-        const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'buyer';
+        // Obtener rol de user_metadata o usar 'investor' por defecto
+        const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'investor';
         const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
         
         // Crear usuario en app_users
@@ -153,7 +153,7 @@ export async function getAuthenticatedUser(
       } catch (error) {
         console.warn('[getAuthenticatedUser] No se pudo crear usuario en app_users, usando user_metadata:', error);
         // Si falla, usar user_metadata directamente
-        const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'buyer';
+        const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'investor';
         const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
         
         return {

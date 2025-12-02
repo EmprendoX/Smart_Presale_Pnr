@@ -19,6 +19,3 @@ export default function AdminError({
 
   return <ErrorContent error={error} reset={reset} />;
 }
-
-
-

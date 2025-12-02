@@ -1,6 +1,5 @@
 import type { DatabaseService } from './db';
 import fs from 'fs';
-import path from 'path';
 
 import type {
   User,
@@ -25,7 +24,7 @@ import type {
 
 const STORAGE_KEY = 'sps_data';
 const DEFAULT_TENANT_ID = 'tenant_default';
-const STORAGE_FILE = path.resolve(process.cwd(), '.sps-mock-data.json');
+const STORAGE_FILE = process.cwd() + '/.sps-mock-data.json';
 
 // Función helper para generar UUIDs de forma segura
 function generateUUID(): string {
@@ -209,17 +208,16 @@ function initializeDefaultData() {
   // Usuarios demo
   if (memoryStore.users.size === 0) {
     const defaultUsers: User[] = [
-      { id: "u_buyer_1", name: "Ana Compradora", role: "buyer", kycStatus: "complete", tenantId: DEFAULT_TENANT_ID, email: "ana@example.com" },
-      { id: "u_dev_1", name: "Carlos Dev", role: "developer", kycStatus: "complete", tenantId: DEFAULT_TENANT_ID, email: "carlos@example.com" },
-      { id: "u_admin_1", name: "Pat Admin", role: "admin", kycStatus: "complete", tenantId: DEFAULT_TENANT_ID, email: "pat@example.com" }
+      { id: "u_investor_1", name: "Ana Inversionista", role: "investor", kycStatus: "complete", tenantId: DEFAULT_TENANT_ID, email: "ana@example.com" },
+      { id: "u_admin_1", name: "Administrador", role: "admin", kycStatus: "complete", tenantId: DEFAULT_TENANT_ID, email: "admin@example.com" }
     ];
     defaultUsers.forEach(u => memoryStore.users.set(u.id, u));
   }
   
-  // Desarrolladores
+  // Desarrolladores - Solo admin puede crear propiedades
   if (memoryStore.developers.size === 0) {
     const defaultDevelopers: Developer[] = [
-      { id: "d1", userId: "u_dev_1", company: "BlueRock Dev S.A.", verifiedAt: nowISO(), tenantId: DEFAULT_TENANT_ID }
+      { id: "d1", userId: "u_admin_1", company: "Smart Presale Admin", verifiedAt: nowISO(), tenantId: DEFAULT_TENANT_ID }
     ];
     defaultDevelopers.forEach(d => memoryStore.developers.set(d.id, d));
   }

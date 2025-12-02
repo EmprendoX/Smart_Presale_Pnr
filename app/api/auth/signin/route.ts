@@ -1,20 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getJsonAuthClient } from "@/lib/auth/json-auth";
+import { getAuthClient } from "@/lib/auth/index";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email } = body;
 
-    // En modo mock, simplemente autenticar con usuario demo basado en email
-    const client = getJsonAuthClient();
+    // Usar cliente unificado que maneja tanto mock como Supabase
+    const authClient = getAuthClient();
     
-    // Buscar usuario demo por email o usar buyer por defecto
-    const userId = email?.includes("admin") ? "u_admin_1" : 
-                   email?.includes("dev") ? "u_dev_1" : 
-                   "u_buyer_1";
+    // Buscar usuario demo por email o usar investor por defecto
+    const userId = email?.includes("admin") ? "u_admin_1" : "u_investor_1";
     
-    await client.signIn(userId);
+    await authClient.auth.signIn(userId);
 
     return NextResponse.json({
       success: true,

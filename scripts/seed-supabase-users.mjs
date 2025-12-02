@@ -2,10 +2,10 @@
 
 const demoUsers = [
   {
-    id: 'u_buyer_1',
-    name: 'Ana Compradora',
-    role: 'buyer',
-    kycStatus: 'basic',
+    id: 'u_investor_1',
+    name: 'Ana Inversionista',
+    role: 'investor',
+    kycStatus: 'complete',
     tenantId: 'tenant_default',
     email: 'ana@example.com',
     metadata: {
@@ -13,25 +13,14 @@ const demoUsers = [
     }
   },
   {
-    id: 'u_dev_1',
-    name: 'Carlos Dev',
-    role: 'developer',
-    kycStatus: 'verified',
-    tenantId: 'tenant_default',
-    email: 'carlos@example.com',
-    metadata: {
-      company: 'BlueRock Dev S.A.'
-    }
-  },
-  {
     id: 'u_admin_1',
-    name: 'Pat Admin',
+    name: 'Administrador',
     role: 'admin',
-    kycStatus: 'verified',
+    kycStatus: 'complete',
     tenantId: 'tenant_default',
-    email: 'pat@example.com',
+    email: 'admin@example.com',
     metadata: {
-      notes: 'Super admin demo'
+      notes: 'Super admin - solo para gestión de propiedades'
     }
   }
 ];
@@ -247,18 +236,14 @@ function buildAuthPayload(authUser, existing, { defaultTenantId, adminEmails, de
     ? String(appRole)
     : email && adminEmails.has(email.toLowerCase())
     ? 'admin'
-    : email && developerEmails.has(email.toLowerCase())
-    ? 'developer'
-    : 'buyer';
+    : 'investor';
   const role = existing?.role ?? inferredRole;
 
   const appKyc = authUser.app_metadata?.kyc_status ?? authUser.user_metadata?.kyc_status;
   const inferredKyc = appKyc
     ? String(appKyc)
     : role === 'admin'
-    ? 'verified'
-    : role === 'developer'
-    ? 'basic'
+    ? 'complete'
     : 'none';
   const kyc_status = existing?.kyc_status ?? inferredKyc;
 
