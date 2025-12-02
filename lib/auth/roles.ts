@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createSupabaseServerClient, createSupabaseServerClientForReading, getSessionFromCookies, mapSupabaseUser, isSupabaseEnabled, resolveRole, type AppUser } from './supabase';
+import { createSupabaseServerClient, createSupabaseServerClientForReading, getSessionFromCookies, mapSupabaseUser, isSupabaseEnabled, resolveRole, enforceAdminAllowlist, type AppUser } from './supabase';
 import { mapJsonUser } from './json-auth';
 import { Role } from '@/lib/types';
 import type { DatabaseService } from '@/lib/services/db';
@@ -180,11 +180,22 @@ export async function getAuthenticatedUser(
       }
     }
 
+    const enforcedRole = enforceAdminAllowlist(appUser.role, appUser.email ?? authUser.email);
+
+    if (enforcedRole !== appUser.role) {
+      try {
+        appUser = await db.upsertUser({ ...appUser, role: enforcedRole });
+        console.warn('[getAuthenticatedUser] Rol admin removido por no estar allowlisteado:', appUser.email);
+      } catch (error) {
+        console.warn('[getAuthenticatedUser] No se pudo corregir rol en app_users:', error);
+      }
+    }
+
     // Mapear a AppUser (formato esperado por el resto de la aplicación)
     return {
       id: appUser.id,
       email: appUser.email ?? authUser.email ?? '',
-      role: appUser.role,
+      role: enforcedRole,
       kycStatus: appUser.kycStatus,
       fullName: appUser.name,
       avatarUrl: authUser.user_metadata?.avatarUrl ?? null,
