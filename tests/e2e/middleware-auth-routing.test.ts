@@ -82,6 +82,18 @@ describe('middleware authentication and authorization', () => {
     expect(response.headers.get('location')).toBe('http://example.com/');
   });
 
+  it('skips auth logic when Supabase is disabled', async () => {
+    const middleware = await importMiddleware();
+    const supabase = await import('@/lib/auth/supabase');
+
+    vi.spyOn(supabase, 'isSupabaseEnabled').mockReturnValue(false);
+
+    const response = await middleware(buildRequest('/dashboard'));
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get('location')).toBeNull();
+  });
+
   it('allows investors with a session to explore and reserve projects', async () => {
     const middleware = await importMiddleware();
     const roles = await import('@/lib/auth/roles');
