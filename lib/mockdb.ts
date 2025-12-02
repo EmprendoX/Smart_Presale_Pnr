@@ -18,11 +18,15 @@ export const findRoundByProject = async (projectId: string) => {
 
 const PROJECT_IMAGE_PLACEHOLDER = "/images/project-placeholder.svg";
 
-export const listPublishedProjects = async (filter?: { listingType?: ListingType }) => {
+const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID ?? 'tenant_default';
+
+export const listPublishedProjects = async (filter?: { listingType?: ListingType; tenantId?: string }) => {
   const projects = await db.getProjects();
   return projects
     .filter(p => {
       if (p.status !== "published") return false;
+      const projectTenantId = p.tenantId || DEFAULT_TENANT_ID;
+      if (filter?.tenantId && projectTenantId !== filter.tenantId) return false;
       if (filter?.listingType && p.listingType !== filter.listingType) return false;
       return true;
     })

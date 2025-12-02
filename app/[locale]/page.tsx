@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { cookies, headers } from "next/headers";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
@@ -6,10 +7,13 @@ import { Input } from "@/components/ui/Input";
 import { Link } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
 import { listPublishedProjects } from "@/lib/mockdb";
+import { getAuthenticatedUser } from "@/lib/auth/roles";
 import { fmtCurrency } from "@/lib/format";
 import { Project } from "@/lib/types";
 
 export const revalidate = 0;
+
+const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID ?? "tenant_default";
 
 type Params = { locale: string };
 
@@ -95,7 +99,15 @@ const ListingCard = ({ project, locale, t }: ListingCardProps) => {
 export default async function HomePage({ params }: { params: Params }) {
   const { locale } = params;
   const t = await getTranslations({ locale, namespace: "home" });
-  const projects = await listPublishedProjects();
+  const request = {
+    headers: headers(),
+    cookies: cookies(),
+    nextUrl: { pathname: `/${locale}` }
+  } as any;
+
+  const user = await getAuthenticatedUser(request);
+  const tenantId = (user?.metadata?.tenantId as string | undefined) || DEFAULT_TENANT_ID;
+  const projects = await listPublishedProjects({ tenantId });
 
   const presaleListings = projects.filter(project => project.listingType === "presale");
 

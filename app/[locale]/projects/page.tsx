@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { cookies, headers } from "next/headers";
 import Script from "next/script";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/Card";
@@ -19,8 +20,11 @@ import {
 import { computeProgress } from "@/lib/rules";
 import { fmtCurrency } from "@/lib/format";
 import { Project, ListingType, Community } from "@/lib/types";
+import { getAuthenticatedUser } from "@/lib/auth/roles";
 
 export const revalidate = 0;
+
+const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID ?? "tenant_default";
 
 type Params = { locale: string };
 
@@ -176,7 +180,15 @@ const renderProjectCard = (
 export default async function ProjectsPage({ params }: { params: Params }) {
   const { locale } = params;
   const t = await getTranslations({ locale, namespace: "projects" });
-  const projects = await listPublishedProjects();
+  const request = {
+    headers: headers(),
+    cookies: cookies(),
+    nextUrl: { pathname: `/${locale}/projects` }
+  } as any;
+
+  const user = await getAuthenticatedUser(request);
+  const tenantId = (user?.metadata?.tenantId as string | undefined) || DEFAULT_TENANT_ID;
+  const projects = await listPublishedProjects({ tenantId });
   const communities = await listCommunities();
 
   const projectsWithData: ProjectWithMetrics[] = await Promise.all(
