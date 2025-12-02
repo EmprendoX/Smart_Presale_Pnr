@@ -47,8 +47,14 @@ export default function ReservePage({ params }: { params: Params }) {
     loadProject();
   }, [slug]);
 
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace(`/${params.locale}/auth/login?redirect=/${params.locale}/projects/${slug}/reserve`);
+    }
+  }, [authLoading, params.locale, router, slug, user]);
+
   const handleReserve = async () => {
-    if (!round) return;
+    if (!round || !user) return;
 
     setIsLoading(true);
     setError(null);
@@ -72,7 +78,7 @@ export default function ReservePage({ params }: { params: Params }) {
       }
 
       // Redirigir a página de pago o dashboard
-      router.push(`/dashboard?reservation=${result.data?.id}`);
+      router.push(`/${params.locale}/dashboard?reservation=${result.data?.id}`);
     } catch (err: any) {
       setError(err.message || "Error al procesar la reserva");
     } finally {

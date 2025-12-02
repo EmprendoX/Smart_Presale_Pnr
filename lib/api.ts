@@ -77,8 +77,8 @@ export const api = {
       credentials: "include"
     }).then(json),
 
-  listMyReservations: async (userId: string): Promise<ApiResult<Reservation[]>> =>
-    fetch(`/api/reservations?userId=${encodeURIComponent(userId)}`, { cache: "no-store", credentials: "include" }).then(json),
+  listMyReservations: async (): Promise<ApiResult<Reservation[]>> =>
+    fetch("/api/reservations", { cache: "no-store", credentials: "include" }).then(json),
 
   refundReservation: async (id: string): Promise<ApiResult<Reservation>> =>
     fetch(`/api/reservations/${id}/refund`, {

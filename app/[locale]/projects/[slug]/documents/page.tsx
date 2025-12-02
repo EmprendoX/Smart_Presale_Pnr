@@ -1,5 +1,6 @@
-import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import { cookies, headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
@@ -8,36 +9,47 @@ import { SignatureWorkflow } from "@/components/investment-room/SignatureWorkflo
 import { findProjectBySlug } from "@/lib/mockdb";
 import { db } from "@/lib/config";
 import { fmtCurrency } from "@/lib/format";
+import { getAuthenticatedUser } from "@/lib/auth/roles";
 
 export const revalidate = 0;
 
 type Params = { locale: string; slug: string };
 
-type SearchParams = { user?: string };
+const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID ?? "tenant_default";
 
 export default async function InvestmentRoomPage({
   params,
-  searchParams
 }: {
   params: Params;
-  searchParams?: SearchParams;
 }) {
   const { locale, slug } = params;
   const t = await getTranslations({ locale, namespace: "investmentRoom" });
+  const request = {
+    headers: headers(),
+    cookies: cookies(),
+    nextUrl: { pathname: `/${locale}/projects/${slug}/documents` }
+  } as any;
+
+  const sessionUser = await getAuthenticatedUser(request);
+
+  if (!sessionUser) {
+    redirect(`/${locale}/auth/login?redirect=/${locale}/projects/${slug}/documents`);
+  }
+
+  const tenantId = (sessionUser?.metadata?.tenantId as string | undefined) || DEFAULT_TENANT_ID;
   const project = await findProjectBySlug(slug);
-  if (!project) return notFound();
+  if (!project || project.status !== "published" || (project.tenantId || DEFAULT_TENANT_ID) !== tenantId) return notFound();
 
   const [documents, round] = await Promise.all([
     db.getDocumentsByProjectId(project.id),
     db.getRoundByProjectId(project.id)
   ]);
-  const users = await db.getUsers();
-  const selectedUserId = searchParams?.user;
-  const user = selectedUserId ? await db.getUserById(selectedUserId) : users[0] ?? null;
+  const user = await db.getUserById(sessionUser.id);
 
-  const hasKyc = user?.kycStatus === "complete";
-  const allowedRole = user?.role === "investor" || user?.role === "admin";
-  const canAccess = Boolean(user && hasKyc && allowedRole);
+  const hasKyc = (user?.kycStatus ?? sessionUser.kycStatus) === "complete";
+  const allowedRole = (user?.role ?? sessionUser.role) === "investor";
+  const canAccess = Boolean(hasKyc && allowedRole);
+  const viewerName = user?.name || sessionUser.fullName || sessionUser.email || t("access.anonymous");
 
   const escrowAmount = round?.depositAmount ?? (project.askingPrice ? project.askingPrice * 0.1 : 25000);
 
@@ -58,10 +70,10 @@ export default async function InvestmentRoomPage({
           <div className="flex flex-wrap items-center gap-3 text-sm text-neutral-600">
             <div>
               <span className="font-medium">{t("access.viewer")}: </span>
-              <span>{user ? user.name : t("access.anonymous")}</span>
+              <span>{viewerName}</span>
             </div>
             <Badge color={hasKyc ? "green" : "neutral"}>{t(hasKyc ? "access.kycReady" : "access.kycMissing")}</Badge>
-            <Badge color={allowedRole ? "green" : "neutral"}>{user?.role ?? "guest"}</Badge>
+            <Badge color={allowedRole ? "green" : "neutral"}>{user?.role ?? sessionUser.role}</Badge>
           </div>
           {!canAccess ? (
             <div className="rounded-md border border-dashed bg-neutral-50 p-4 text-sm text-neutral-600">

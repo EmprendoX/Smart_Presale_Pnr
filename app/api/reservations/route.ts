@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/config";
 import { randomUUID } from "crypto";
-
-const DEFAULT_USER_ID = "u_investor_1"; // Usuario mock por defecto
+import { getAuthenticatedUser, requireRole } from "@/lib/auth/roles";
 
 export async function POST(request: NextRequest) {
   try {
-    // Usar usuario mock por defecto (sin autenticación)
-    const userId = DEFAULT_USER_ID;
+    const user = await getAuthenticatedUser(request);
+
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "Autenticación requerida" }, { status: 401 });
+    }
+
+    if (!requireRole(user, ["investor"])) {
+      return NextResponse.json({ ok: false, error: "Solo inversores pueden crear reservas" }, { status: 403 });
+    }
+
+    const userId = user.id;
 
     const body = await request.json();
     const { roundId, slots, kyc } = body;
@@ -67,11 +75,17 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
-    const { searchParams } = new URL(request.url);
-    const userIdParam = searchParams.get("userId");
-    
-    // Usar userId del query o usuario mock por defecto
-    const userId = userIdParam || DEFAULT_USER_ID;
+    const user = await getAuthenticatedUser(request);
+
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "Autenticación requerida" }, { status: 401 });
+    }
+
+    if (!requireRole(user, ["investor"])) {
+      return NextResponse.json({ ok: false, error: "Solo inversores pueden consultar reservas" }, { status: 403 });
+    }
+
+    const userId = user.id;
 
     const reservations = await db.getReservationsByUserId(userId);
 

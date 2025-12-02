@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Link } from "@/i18n/routing";
 import { useAuth } from "@/providers/AuthProvider";
@@ -13,6 +13,7 @@ import type { Reservation } from "@/lib/types";
 
 export default function DashboardPage() {
   const router = useRouter();
+  const params = useParams<{ locale: string }>();
   const t = useTranslations("dashboard");
   const { user, loading: authLoading } = useAuth();
   
@@ -24,19 +25,25 @@ export default function DashboardPage() {
   // Cargar reservas (usar usuario mock si no hay usuario autenticado)
   useEffect(() => {
     if (!authLoading) {
+      if (!user) {
+        const locale = params?.locale ? `/${params.locale}` : "";
+        const redirectPath = `${locale}/dashboard`;
+        router.replace(`${locale}/auth/login?redirect=${redirectPath}`);
+        return;
+      }
+
       loadReservations();
     }
-  }, [authLoading]);
+  }, [authLoading, params, router, user]);
 
   const loadReservations = async () => {
-    // Usar userId del usuario autenticado o usuario mock por defecto
-    const userId = user?.id || "u_investor_1";
-    
+    if (!user) return;
+
     setLoading(true);
     setError(null);
-    
+
     try {
-      const result = await api.listMyReservations(userId);
+      const result = await api.listMyReservations();
       if (result.ok && result.data) {
         setReservations(result.data);
       } else {

@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/config";
 import { Project } from "@/lib/types";
+import { getAuthenticatedUser } from "@/lib/auth/roles";
+
+const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID ?? "tenant_default";
 
 export async function GET(
   request: NextRequest,
@@ -8,9 +11,16 @@ export async function GET(
 ) {
   try {
     const { slug } = params;
+    const user = await getAuthenticatedUser(request);
+
+    if (!user) {
+      return NextResponse.json({ ok: false, error: "Autenticación requerida" }, { status: 401 });
+    }
+
+    const tenantId = (user?.metadata?.tenantId as string | undefined) || DEFAULT_TENANT_ID;
     const project = await db.getProjectBySlug(slug);
 
-    if (!project) {
+    if (!project || project.status !== "published" || (project.tenantId || DEFAULT_TENANT_ID) !== tenantId) {
       return NextResponse.json(
         { ok: false, error: "Proyecto no encontrado" },
         { status: 404 }

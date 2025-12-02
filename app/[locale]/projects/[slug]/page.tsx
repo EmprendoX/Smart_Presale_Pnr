@@ -1,5 +1,6 @@
 import { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { cookies, headers } from "next/headers";
+import { notFound, redirect } from "next/navigation";
 import { Link } from "@/i18n/routing";
 import { getTranslations } from "next-intl/server";
 import { findProjectBySlug, findRoundByProject, byRoundReservations } from "@/lib/mockdb";
@@ -13,8 +14,11 @@ import Countdown from "@/components/Countdown";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { db } from "@/lib/config";
+import { getAuthenticatedUser } from "@/lib/auth/roles";
 
 export const revalidate = 0;
+
+const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID ?? "tenant_default";
 
 type Params = { locale: string; slug: string };
 
@@ -44,9 +48,22 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 export default async function ProjectDetailPage({ params }: { params: Params }) {
   const { locale, slug } = params;
   const t = await getTranslations({ locale });
+  const request = {
+    headers: headers(),
+    cookies: cookies(),
+    nextUrl: { pathname: `/${locale}/projects/${slug}` }
+  } as any;
+
+  const user = await getAuthenticatedUser(request);
+
+  if (!user) {
+    redirect(`/${locale}/auth/login?redirect=/${locale}/projects/${slug}`);
+  }
+
+  const tenantId = (user?.metadata?.tenantId as string | undefined) || DEFAULT_TENANT_ID;
   const project = await findProjectBySlug(slug);
-  
-  if (!project) {
+
+  if (!project || project.status !== "published" || (project.tenantId || DEFAULT_TENANT_ID) !== tenantId) {
     return notFound();
   }
 
