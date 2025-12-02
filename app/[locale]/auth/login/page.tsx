@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useMemo, useState } from "react";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
@@ -23,6 +23,8 @@ const isSupabaseEnabledClient = () => {
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const params = useParams();
   const t = useTranslations("auth");
   const { signInWithOtp } = useAuth();
   const [formData, setFormData] = useState({
@@ -33,6 +35,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+
+  const locale = useMemo(() => {
+    const routeLocale = params?.locale;
+    return typeof routeLocale === "string" ? routeLocale : Array.isArray(routeLocale) ? routeLocale[0] : "";
+  }, [params]);
+
+  const redirectPath = useMemo(() => {
+    const redirectParam = searchParams.get("redirect");
+    const localePrefix = locale ? `/${locale}` : "";
+    return redirectParam || (localePrefix ? `${localePrefix}/dashboard` : "/dashboard");
+  }, [locale, searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,14 +58,13 @@ export default function LoginPage() {
         // Autenticación real con Supabase OTP
         console.log('[LoginPage] Using Supabase OTP authentication');
         const result = await signInWithOtp(formData.email, {
-          redirectTo: `${window.location.origin}/auth/callback?redirect=${encodeURIComponent(new URLSearchParams(window.location.search).get("redirect") || "/dashboard")}`,
+          redirectTo: `${window.location.origin}/${locale || ""}/auth/callback?redirect=${encodeURIComponent(redirectPath)}`,
           shouldCreateUser: true
         });
 
         if (result?.autoAuthenticated) {
           // Si se autentica automáticamente (modo mock), redirigir inmediatamente
-          const redirectUrl = new URLSearchParams(window.location.search).get("redirect") || "/dashboard";
-          router.push(redirectUrl);
+          router.push(redirectPath);
         } else {
           // Mostrar mensaje de éxito para verificar email
           setSuccess(true);
@@ -75,8 +87,7 @@ export default function LoginPage() {
         setSuccess(true);
         // Redirigir al dashboard después de iniciar sesión
         setTimeout(() => {
-          const redirectUrl = new URLSearchParams(window.location.search).get("redirect") || "/dashboard";
-          router.push(redirectUrl);
+          router.push(redirectPath);
         }, 1500);
       }
     } catch (err: any) {
