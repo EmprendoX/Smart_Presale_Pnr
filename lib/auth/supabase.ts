@@ -55,6 +55,10 @@ export function isSupabaseEnabled(): boolean {
   return !!(useSupabase && url && anonKey);
 }
 
+function normalizeEmail(email?: string | null): string | null {
+  return email?.trim().toLowerCase() ?? null;
+}
+
 function getAdminEmailSet(): Set<string> {
   const raw = process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '';
   return new Set(
@@ -65,16 +69,30 @@ function getAdminEmailSet(): Set<string> {
   );
 }
 
-export function resolveRole(user: Pick<User, 'email' | 'user_metadata'> | null): Role {
-  const adminEmails = getAdminEmailSet();
-  const email = user?.email?.toLowerCase();
-  const roleFromMetadata = user?.user_metadata?.role as Role | undefined;
+function isAllowlistedAdminEmail(email?: string | null): boolean {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) return false;
 
-  if (email && adminEmails.has(email)) {
-    return 'admin';
+  return getAdminEmailSet().has(normalizedEmail);
+}
+
+export function enforceAdminAllowlist(role: Role, email?: string | null): Role {
+  if (role === 'admin') {
+    return isAllowlistedAdminEmail(email) ? 'admin' : 'investor';
   }
 
-  if (roleFromMetadata === 'admin') {
+  return role;
+}
+
+export function resolveRole(user: Pick<User, 'email' | 'user_metadata'> | null): Role {
+  const email = normalizeEmail(user?.email);
+  const roleFromMetadata = user?.user_metadata?.role as Role | undefined;
+
+  if (roleFromMetadata === 'admin' && !isAllowlistedAdminEmail(email)) {
+    console.warn('[resolveRole] Usuario solicitó rol admin sin estar allowlisteado:', email);
+  }
+
+  if (isAllowlistedAdminEmail(email)) {
     return 'admin';
   }
 
