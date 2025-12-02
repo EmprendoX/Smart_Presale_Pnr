@@ -2,9 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createSupabaseServerClient, createSupabaseServerClientForReading, getSessionFromCookies, mapSupabaseUser, isSupabaseEnabled, type AppUser } from './supabase';
 import { mapJsonUser } from './json-auth';
 import { Role } from '@/lib/types';
-import { db } from '@/lib/config';
+import type { DatabaseService } from '@/lib/services/db';
 
 const DEFAULT_TENANT_ID = process.env.DEFAULT_TENANT_ID ?? 'tenant_default';
+
+let cachedDb: DatabaseService | null = null;
+
+async function getDatabase(): Promise<DatabaseService> {
+  if (cachedDb) return cachedDb;
+
+  const { db } = await import('@/lib/config');
+  cachedDb = db as DatabaseService;
+  return cachedDb;
+}
 
 /**
  * Obtiene el usuario autenticado desde la sesión (Supabase o JSON según configuración)
@@ -125,6 +135,8 @@ export async function getAuthenticatedUser(
     const authUser = session.user;
     const userId = authUser.id;
 
+    const db = await getDatabase();
+
     // Intentar obtener el usuario de la tabla app_users primero
     let appUser = null;
     try {
@@ -180,6 +192,47 @@ export async function getAuthenticatedUser(
     };
   } catch (error) {
     console.error('[getAuthenticatedUser] Error:', error);
+    return null;
+  }
+}
+
+export async function getAuthenticatedUserEdge(
+  request: NextRequest,
+  response?: NextResponse
+): Promise<AppUser | null> {
+  if (!isSupabaseEnabled()) {
+    return null;
+  }
+
+  try {
+    const supabase = response
+      ? createSupabaseServerClient(request, response)
+      : createSupabaseServerClientForReading(request);
+
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error || !data.session?.user) {
+      if (error) {
+        console.warn('[getAuthenticatedUserEdge] Error retrieving session:', error.message);
+      }
+      return null;
+    }
+
+    const authUser = data.session.user;
+    const roleFromMetadata = (authUser.user_metadata?.role as Role) ?? 'investor';
+    const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
+
+    return {
+      id: authUser.id,
+      email: authUser.email ?? '',
+      role: roleFromMetadata,
+      kycStatus: kycStatusFromMetadata,
+      fullName: authUser.user_metadata?.fullName ?? authUser.user_metadata?.name ?? authUser.email?.split('@')[0] ?? null,
+      avatarUrl: authUser.user_metadata?.avatarUrl ?? null,
+      metadata: authUser.user_metadata ?? {}
+    };
+  } catch (error: any) {
+    console.error('[getAuthenticatedUserEdge] Error:', error.message);
     return null;
   }
 }
