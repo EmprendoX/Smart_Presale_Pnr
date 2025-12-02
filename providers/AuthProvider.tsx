@@ -141,6 +141,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (typeof window === 'undefined') return;
         const authClient = getAuthClient();
         const result = await authClient.auth.signInWithOtp({ email, options });
+
+        if (result.error) {
+          throw result.error;
+        }
+
         return result.data;
       },
       signInWithOAuth: async (provider, options) => {
