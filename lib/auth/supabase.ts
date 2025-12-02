@@ -6,6 +6,42 @@ import { getJsonAuthClient, updateDemoUser } from './json-auth';
 
 let browserClient: SupabaseClient | null = null;
 
+type NormalizedSameSite = 'lax' | 'strict' | 'none';
+
+function getSupabaseProjectRef(url: string): string {
+  return url.split('//')[1]?.split('.')[0] || 'default';
+}
+
+function getSupabaseStorageKey(url: string): string {
+  return `sb-${getSupabaseProjectRef(url)}-auth-token`;
+}
+
+function getSupabaseCookieConfig(): { domain?: string; sameSite: NormalizedSameSite; secure: boolean } {
+  const domain = process.env.NEXT_PUBLIC_SUPABASE_COOKIE_DOMAIN || process.env.SUPABASE_COOKIE_DOMAIN || undefined;
+  const sameSiteEnv = (process.env.NEXT_PUBLIC_SUPABASE_COOKIE_SAMESITE || process.env.SUPABASE_COOKIE_SAMESITE || '').toLowerCase();
+  const sameSite: NormalizedSameSite = sameSiteEnv === 'strict' ? 'strict' : sameSiteEnv === 'none' ? 'none' : 'lax';
+
+  // "None" must be secure; prefer secure cookies in production or when a domain is configured
+  const secure = sameSite === 'none' || !!domain || process.env.NODE_ENV === 'production';
+
+  return { domain, sameSite, secure };
+}
+
+function buildCookieAttributes(config: { domain?: string; sameSite: NormalizedSameSite; secure: boolean }) {
+  const sameSiteValue = config.sameSite === 'none'
+    ? 'None'
+    : config.sameSite === 'strict'
+      ? 'Strict'
+      : 'Lax';
+
+  return [
+    'path=/',
+    `SameSite=${sameSiteValue}`,
+    config.secure ? 'Secure' : '',
+    config.domain ? `Domain=${config.domain}` : ''
+  ].filter(Boolean).join('; ');
+}
+
 /**
  * Verifica si Supabase está habilitado y configurado correctamente
  */
@@ -66,7 +102,10 @@ export const getSupabaseBrowserClient = (): SupabaseClient => {
     // En el cliente, obtener credenciales directamente de las variables de entorno
     const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-    
+    const storageKey = url ? getSupabaseStorageKey(url) : 'supabase.auth.token';
+    const cookieConfig = getSupabaseCookieConfig();
+    const cookieAttributes = buildCookieAttributes(cookieConfig);
+
     if (!url || !anonKey) {
       throw new Error('Supabase credentials not available in client. Please set NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY.');
     }
@@ -115,16 +154,14 @@ export const getSupabaseBrowserClient = (): SupabaseClient => {
         try {
           const parsed = JSON.parse(value);
           if (parsed.access_token) {
-            // Obtener el project ref de la URL
-            const projectRef = url.split('//')[1]?.split('.')[0] || 'default';
-            const cookieName = `sb-${projectRef}-auth-token`;
-            
+            const cookieName = getSupabaseStorageKey(url);
+
             // Establecer cookie con los mismos datos
-            const expires = parsed.expires_at 
+            const expires = parsed.expires_at
               ? new Date(parsed.expires_at * 1000).toUTCString()
               : new Date(Date.now() + 3600000).toUTCString(); // 1 hora por defecto
-            
-            document.cookie = `${cookieName}=${encodeURIComponent(value)}; expires=${expires}; path=/; SameSite=Lax${location.protocol === 'https:' ? '; Secure' : ''}`;
+
+            document.cookie = `${cookieName}=${encodeURIComponent(value)}; expires=${expires}; ${cookieAttributes}`;
           }
         } catch (e) {
           // Si falla el parsing, solo guardar en localStorage
@@ -138,7 +175,7 @@ export const getSupabaseBrowserClient = (): SupabaseClient => {
         cookies.forEach(cookie => {
           const name = cookie.trim().split('=')[0];
           if (name.includes('sb-') && name.includes('auth')) {
-            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+            document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; ${cookieAttributes};`;
           }
         });
       }
@@ -150,7 +187,7 @@ export const getSupabaseBrowserClient = (): SupabaseClient => {
         autoRefreshToken: true,
         detectSessionInUrl: true, // Detectar sesión en la URL (útil después de redirects)
         storage: customStorage,
-        storageKey: 'supabase.auth.token',
+        storageKey,
         flowType: 'pkce' // Usar PKCE para mejor seguridad y compatibilidad
       },
       global: {
@@ -184,7 +221,32 @@ export const createSupabaseServerClient = (
     return getSupabaseMockClient();
   }
 
-  return createMiddlewareSupabaseClient({ req: request, res: response }) as unknown as SupabaseClient;
+  const { url, anonKey } = getSupabaseCredentials();
+  const { domain, sameSite, secure } = getSupabaseCookieConfig();
+  const { host, proto } = getForwardedHeaders(request);
+
+  return createMiddlewareSupabaseClient({
+    req: request,
+    res: response,
+    supabaseUrl: url,
+    supabaseKey: anonKey,
+    cookieOptions: {
+      name: getSupabaseStorageKey(url),
+      domain,
+      sameSite,
+      secure,
+      path: '/'
+    },
+    options: {
+      global: {
+        headers: {
+          'X-Forwarded-Host': host,
+          'X-Forwarded-Proto': proto,
+          'X-Client-Info': 'smart-presale'
+        }
+      }
+    }
+  }) as unknown as SupabaseClient;
 };
 
 /**
@@ -208,7 +270,32 @@ export const createSupabaseServerClientForReading = (
   
   // El helper de Supabase lee las cookies del request automáticamente
   // El response solo se usa si necesitamos establecer nuevas cookies
-  return createMiddlewareSupabaseClient({ req: request, res: tempResponse }) as unknown as SupabaseClient;
+  const { url, anonKey } = getSupabaseCredentials();
+  const { domain, sameSite, secure } = getSupabaseCookieConfig();
+  const { host, proto } = getForwardedHeaders(request);
+
+  return createMiddlewareSupabaseClient({
+    req: request,
+    res: tempResponse,
+    supabaseUrl: url,
+    supabaseKey: anonKey,
+    cookieOptions: {
+      name: getSupabaseStorageKey(url),
+      domain,
+      sameSite,
+      secure,
+      path: '/'
+    },
+    options: {
+      global: {
+        headers: {
+          'X-Forwarded-Host': host,
+          'X-Forwarded-Proto': proto,
+          'X-Client-Info': 'smart-presale'
+        }
+      }
+    }
+  }) as unknown as SupabaseClient;
 };
 
 /**
@@ -407,15 +494,23 @@ export async function getSessionFromCookies(request: NextRequest): Promise<Sessi
 function parseCookies(cookieHeader: string): Record<string, string> {
   const cookies: Record<string, string> = {};
   if (!cookieHeader) return cookies;
-  
+
   cookieHeader.split(';').forEach(cookie => {
     const [name, ...rest] = cookie.trim().split('=');
     if (name && rest.length > 0) {
       cookies[name] = rest.join('=');
     }
   });
-  
+
   return cookies;
+}
+
+function getForwardedHeaders(request: NextRequest) {
+  const url = new URL(request.url);
+  const host = request.headers.get('x-forwarded-host') || request.headers.get('host') || url.host;
+  const proto = request.headers.get('x-forwarded-proto') || url.protocol.replace(':', '');
+
+  return { host, proto };
 }
 
 export type AppUser = {
