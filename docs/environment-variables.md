@@ -11,8 +11,9 @@ This document describes all environment variables needed for Smart Pre-Sale.
 1. Exporta `USE_SUPABASE=true` en todos los entornos conectados a la base real.
 2. Exporta `NEXT_PUBLIC_SUPABASE_URL`.
 3. Exporta `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
-4. Exporta `SUPABASE_SERVICE_ROLE_KEY` (solo en el backend/servidor).
-5. Reinicia `npm run dev` para que Next.js lea los cambios.
+4. Exporta `DEFAULT_TENANT_ID` (el multi-tenant usa este valor cuando no hay `tenant` explícito).
+5. Exporta `SUPABASE_SERVICE_ROLE_KEY` (solo en el backend/servidor) si hay tareas server-side que escriben en Supabase.
+6. Reinicia `npm run dev` para que Next.js lea los cambios.
 
 ### `USE_SUPABASE`
 - **Description**: Fuerza a la aplicación a trabajar contra Supabase. Cuando es `false`, se habilita el modo JSON solo para pruebas locales.
@@ -34,6 +35,15 @@ This document describes all environment variables needed for Smart Pre-Sale.
 - **Example**: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 - **Where to get it**: Supabase Dashboard → Settings → API → Project API keys → `service_role` `secret`
 - **⚠️ WARNING**: This key bypasses Row Level Security. Never expose it to the client!
+
+### `SUPABASE_COOKIE_DOMAIN` / `NEXT_PUBLIC_SUPABASE_COOKIE_DOMAIN`
+- **Description**: Dominio explícito para las cookies `sb-*-auth-token` (útil con dominios custom o detrás de proxies/Vercel).
+- **Default**: Vacío (usa el dominio actual del navegador).
+- **When to set it**: Solo si las cookies se escriben en un subdominio que difiere del host principal.
+
+### `SUPABASE_COOKIE_SAMESITE` / `NEXT_PUBLIC_SUPABASE_COOKIE_SAMESITE`
+- **Description**: Controla `SameSite` para las cookies de sesión (`lax`, `strict` o `none`). Usa `none` si el flujo de OAuth corre en un dominio diferente y exige `Secure`.
+- **Default**: `lax`.
 
 ## Optional Variables
 
@@ -78,7 +88,10 @@ Update the `.env.local` file in the project root (or create it if missing) with:
 USE_SUPABASE=true
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key-here
+DEFAULT_TENANT_ID=tenant_default
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
+SUPABASE_COOKIE_DOMAIN=
+SUPABASE_COOKIE_SAMESITE=lax
 
 # Tenant Configuration (optional)
 DEFAULT_TENANT_ID=tenant_default
