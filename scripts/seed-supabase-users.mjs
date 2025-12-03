@@ -271,6 +271,13 @@ async function seed() {
   const adminEmails = parseListEnv('ADMIN_EMAILS');
   const developerEmails = parseListEnv('DEVELOPER_EMAILS');
 
+  if (!adminEmails.size) {
+    throw new Error(
+      'ADMIN_EMAILS está vacío. Define al menos un correo de administrador antes de correr el seed ' +
+      '(por ejemplo ADMIN_EMAILS=founder@example.com).'
+    );
+  }
+
   const client = createSupabaseRestClient({
     url,
     serviceKey,

@@ -28,6 +28,29 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [user, setUser] = useState<AppUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hydratingProfile, setHydratingProfile] = useState(false);
+
+  const hydrateUserFromApi = async () => {
+    if (!isSupabaseEnabled() || typeof window === 'undefined') {
+      return;
+    }
+
+    try {
+      setHydratingProfile(true);
+      const response = await fetch('/api/auth/me', { credentials: 'include' });
+      if (!response.ok) {
+        return;
+      }
+      const data = await response.json();
+      if (data?.user) {
+        setUser(data.user);
+      }
+    } catch (error) {
+      console.warn('[AuthProvider] Failed to hydrate user from /api/auth/me:', error);
+    } finally {
+      setHydratingProfile(false);
+    }
+  };
 
   useEffect(() => {
     // Crear cliente solo en el cliente (después de montar)
@@ -50,7 +73,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         
         if (data.session?.user) {
           if (isSupabaseEnabled()) {
-            // En modo Supabase, mapear desde user_metadata
             const supabaseUser = data.session.user;
             setUser({
               id: supabaseUser.id,
@@ -61,8 +83,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
               avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,
               metadata: supabaseUser.user_metadata ?? {}
             });
+            await hydrateUserFromApi();
           } else {
-            // En modo mock, usar mapJsonUser
             setUser(mapJsonUser(data.session.user.id));
           }
         } else {
@@ -99,7 +121,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       
       if (nextSession?.user) {
         if (isSupabaseEnabled()) {
-          // En modo Supabase, mapear desde user_metadata
           const supabaseUser = nextSession.user;
           setUser({
             id: supabaseUser.id,
@@ -110,8 +131,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,
             metadata: supabaseUser.user_metadata ?? {}
           });
+          await hydrateUserFromApi();
         } else {
-          // En modo mock, usar mapJsonUser
           setUser(mapJsonUser(nextSession.user.id));
         }
       } else {
@@ -136,7 +157,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     () => ({
       user,
       session,
-      loading,
+      loading: loading || hydratingProfile,
       signInWithOtp: async (email, options) => {
         if (typeof window === 'undefined') return;
         const authClient = getAuthClient();
@@ -169,7 +190,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           
           if (data.session?.user) {
             if (isSupabaseEnabled()) {
-              // En modo Supabase, mapear desde user_metadata
               const supabaseUser = data.session.user;
               setUser({
                 id: supabaseUser.id,
@@ -180,8 +200,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 avatarUrl: supabaseUser.user_metadata?.avatarUrl ?? null,
                 metadata: supabaseUser.user_metadata ?? {}
               });
+              await hydrateUserFromApi();
             } else {
-              // En modo mock, usar mapJsonUser
               setUser(mapJsonUser(data.session.user.id));
             }
           } else {

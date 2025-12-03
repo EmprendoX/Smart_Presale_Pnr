@@ -137,7 +137,7 @@ class JsonAuthClient {
     if (user) {
       await this.signIn(user.id);
     } else {
-      console.warn('[JsonAuth] Usuario no encontrado por email, usando buyer por defecto');
+      console.warn('[JsonAuth] Usuario no encontrado por email, usando investor por defecto');
       await this.signIn('u_investor_1');
     }
     // Retornar información sobre autenticación automática

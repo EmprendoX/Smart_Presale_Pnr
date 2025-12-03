@@ -45,6 +45,16 @@ This document describes all environment variables needed for Smart Pre-Sale.
 - **Description**: Controla `SameSite` para las cookies de sesión (`lax`, `strict` o `none`). Usa `none` si el flujo de OAuth corre en un dominio diferente y exige `Secure`.
 - **Default**: `lax`.
 
+### `ADMIN_EMAILS`
+- **Description**: Lista separada por comas con los correos que deben recibir rol `admin` en Supabase. Se usa en `resolveRole()` para mostrar el botón de administración y en los scripts de seed para sincronizar `app_users`.
+- **Example**: `ADMIN_EMAILS=founder@example.com,cto@example.com`
+- **Where to set it**: `.env.local`, variables en hosting y en cualquier workflow que ejecute `scripts/seed-supabase-users.mjs`.
+
+### `DEVELOPER_EMAILS`
+- **Description**: Lista separada por comas con correos que representan desarrolladores asociados (se usa al sembrar datos demo o sincronizar usuarios).
+- **Example**: `DEVELOPER_EMAILS=dev1@example.com,dev2@example.com`
+- **Where to set it**: Igual que `ADMIN_EMAILS`. Opcional pero recomendado si deseas que ciertos usuarios aparezcan como desarrolladores al correr el seed.
+
 ## Optional Variables
 
 ### Tenant Configuration
@@ -92,6 +102,8 @@ DEFAULT_TENANT_ID=tenant_default
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key-here
 SUPABASE_COOKIE_DOMAIN=
 SUPABASE_COOKIE_SAMESITE=lax
+ADMIN_EMAILS=founder@example.com,cto@example.com
+DEVELOPER_EMAILS=dev1@example.com
 
 # Tenant Configuration (optional)
 DEFAULT_TENANT_ID=tenant_default

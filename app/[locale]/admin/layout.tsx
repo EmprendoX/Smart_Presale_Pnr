@@ -1,10 +1,9 @@
 import { ReactNode } from "react";
-import { headers, cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { Link } from "@/i18n/routing";
 import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import { getAuthenticatedUser, requireRole } from "@/lib/auth/roles";
+import { getServerComponentUser, requireRole } from "@/lib/auth/roles";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -16,13 +15,7 @@ interface AdminLayoutProps {
 export default async function AdminLayout({ children, params }: AdminLayoutProps) {
   const { locale } = params;
 
-  const request = {
-    headers: headers(),
-    cookies: cookies(),
-    nextUrl: { pathname: `/${locale}/admin` }
-  } as any;
-
-  const user = await getAuthenticatedUser(request);
+  const user = await getServerComponentUser();
 
   if (!user) {
     redirect(`/${locale}/auth/login?redirect=/${locale}/admin`);

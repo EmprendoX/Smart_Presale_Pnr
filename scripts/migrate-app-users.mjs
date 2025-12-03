@@ -52,7 +52,7 @@ async function main() {
     }
 
     if (!user.role) {
-      payload.role = 'buyer';
+      payload.role = 'investor';
       needsUpdate = true;
       report.missingRole += 1;
     }

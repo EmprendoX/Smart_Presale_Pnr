@@ -24,7 +24,7 @@ const deriveNameFromUser = (user: User): string => {
 
 const extractRole = (user: User): Role => {
   const role = user.user_metadata?.role as Role | undefined;
-  return role ?? 'buyer';
+  return role ?? 'investor';
 };
 
 const extractKycStatus = (user: User): KycStatus => {

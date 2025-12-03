@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { headers, cookies } from 'next/headers';
+import { createServerComponentClient } from '@supabase/auth-helpers-nextjs';
 import { createSupabaseServerClient, createSupabaseServerClientForReading, getSessionFromCookies, mapSupabaseUser, isSupabaseEnabled, resolveRole, enforceAdminAllowlist, type AppUser } from './supabase';
 import { mapJsonUser } from './json-auth';
 import { Role } from '@/lib/types';
@@ -153,7 +155,7 @@ export async function getAuthenticatedUser(
         const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
         
         // Crear usuario en app_users
-        appUser = await db.upsertUser({
+        const userPayload = {
           id: userId,
           name: authUser.user_metadata?.fullName ?? authUser.user_metadata?.name ?? authUser.email?.split('@')[0] ?? 'Usuario',
           role: roleFromMetadata,
@@ -161,7 +163,15 @@ export async function getAuthenticatedUser(
           tenantId: DEFAULT_TENANT_ID,
           email: authUser.email ?? undefined,
           metadata: authUser.user_metadata ?? null
+        };
+        
+        console.log('[getAuthenticatedUser] Intentando crear usuario con payload:', {
+          ...userPayload,
+          userMetadata: authUser.user_metadata,
+          email: authUser.email
         });
+        
+        appUser = await db.upsertUser(userPayload);
       } catch (error) {
         console.warn('[getAuthenticatedUser] No se pudo crear usuario en app_users, usando user_metadata:', error);
         // Si falla, usar user_metadata directamente
@@ -244,6 +254,46 @@ export async function getAuthenticatedUserEdge(
     };
   } catch (error: any) {
     console.error('[getAuthenticatedUserEdge] Error:', error.message);
+    return null;
+  }
+}
+
+/**
+ * Helper para layouts/páginas Server Component que necesitan conocer al usuario actual
+ * sin construir un NextRequest manual.
+ */
+export async function getServerComponentUser(): Promise<AppUser | null> {
+  if (!isSupabaseEnabled()) {
+    return null;
+  }
+
+  try {
+    const supabase = createServerComponentClient({
+      headers,
+      cookies
+    });
+
+    const { data, error } = await supabase.auth.getSession();
+
+    if (error || !data.session?.user) {
+      return null;
+    }
+
+    const authUser = data.session.user;
+    const roleFromMetadata = resolveRole(authUser);
+    const kycStatusFromMetadata = (authUser.user_metadata?.kycStatus as 'none' | 'complete') ?? 'none';
+
+    return {
+      id: authUser.id,
+      email: authUser.email ?? '',
+      role: roleFromMetadata,
+      kycStatus: kycStatusFromMetadata,
+      fullName: authUser.user_metadata?.fullName ?? authUser.user_metadata?.name ?? authUser.email?.split('@')[0] ?? null,
+      avatarUrl: authUser.user_metadata?.avatarUrl ?? null,
+      metadata: authUser.user_metadata ?? {}
+    };
+  } catch (error: any) {
+    console.error('[getServerComponentUser] Error:', error.message);
     return null;
   }
 }

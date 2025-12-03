@@ -59,14 +59,24 @@ function normalizeEmail(email?: string | null): string | null {
   return email?.trim().toLowerCase() ?? null;
 }
 
+let hasWarnedAboutMissingAdmins = false;
+
 function getAdminEmailSet(): Set<string> {
   const raw = process.env.ADMIN_EMAILS ?? process.env.NEXT_PUBLIC_ADMIN_EMAILS ?? '';
-  return new Set(
-    raw
-      .split(',')
-      .map(email => email.trim().toLowerCase())
-      .filter(Boolean)
-  );
+  const list = raw
+    .split(',')
+    .map(email => email.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (list.length === 0 && !hasWarnedAboutMissingAdmins && process.env.NODE_ENV !== 'test') {
+    console.warn(
+      '[Supabase] ADMIN_EMAILS está vacío. Ningún usuario recibirá rol "admin". ' +
+      'Agrega correos en .env para habilitar el panel administrativo.'
+    );
+    hasWarnedAboutMissingAdmins = true;
+  }
+
+  return new Set(list);
 }
 
 function isAllowlistedAdminEmail(email?: string | null): boolean {
