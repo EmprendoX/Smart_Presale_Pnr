@@ -14,6 +14,7 @@ export default function NewProjectPage() {
   const t = useTranslations("admin");
   const { show } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const [developers, setDevelopers] = useState<Array<{ id: string; company: string }>>([]);
   const [agents, setAgents] = useState<Array<{ id: string; name: string }>>([]);
@@ -32,6 +33,7 @@ export default function NewProjectPage() {
       setAgents(meta.data.agents.map(a => ({ id: a.id, name: a.name || a.id })));
     } catch (error) {
       console.error("Error loading data:", error);
+      setErrorMessage("No pudimos cargar los catálogos necesarios. Intenta nuevamente.");
     } finally {
       setLoading(false);
     }
@@ -39,9 +41,10 @@ export default function NewProjectPage() {
 
   const handleSubmit = async (data: Partial<Project>) => {
     setIsSubmitting(true);
+    setErrorMessage(null);
     try {
       const result = await api.createProject(data);
-      
+
       if (result.ok && result.data) {
         show("Proyecto creado exitosamente", "Éxito");
         router.push("/admin", { locale });
@@ -50,6 +53,7 @@ export default function NewProjectPage() {
       }
     } catch (error: any) {
       show(error.message || "Error al crear el proyecto", "Error");
+      setErrorMessage(error.message || "No pudimos crear la propiedad. Revisa los datos e intenta de nuevo.");
     } finally {
       setIsSubmitting(false);
     }
@@ -79,6 +83,12 @@ export default function NewProjectPage() {
           Completa la información del proyecto
         </p>
       </div>
+
+      {errorMessage && (
+        <div className="mb-4 rounded-md border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {errorMessage}
+        </div>
+      )}
 
       <ProjectForm
         developers={developers}
